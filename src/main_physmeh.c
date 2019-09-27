@@ -17,7 +17,35 @@ static PBYTE                    pBmpBuf                     = NULL;
 static UINT                     nBmpWidth                   = 0;
 static UINT                     nBmpHeight                  = 0;
 
-#define kGridX                  4096*16
+struct ctx_s1d
+{
+  // Количество узлов в сетке
+  UINT                          kGridX;
+  UINT                          kGridT;
+  // Количество расчитываемых слоёв времени
+  // 0 - если расчёт идёт до бесконечности
+  UINT                          kNTimes;
+  // Количество расчитаных слоёв времени
+  UINT                          nNTImes;
+  // Количество слоёв времени хранимых в памяти
+  UINT                          kMemNTimes;
+  // Название файла для записи данных
+  // NULL - если не требуется запись
+  LPCSTR                        szFileName;
+  // Указатель на функцию решатель
+  VOID                          (*rSolver)( struct ctx_s1d * const );
+  // Указатель на функицю рисователь
+  // NULL - если не требуется рисовать
+  VOID                          (*rPainter)( struct ctx_s1d * const );
+  // Указатель на функцию начальных и граничных условий
+  FLOAT                         (*rU)( const FLOAT );
+  // Константы для решалки
+  FLOAT                         kF_dT;
+  FLOAT                         kF_dX;
+
+};
+
+#define kGridX                  512
 
 static FLOAT                    _U1 [ kGridX ];
 static FLOAT                    _U2 [ kGridX ];
