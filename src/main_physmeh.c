@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <windows.h>
 
@@ -17,21 +19,23 @@ static PBYTE                    pBmpBuf                     = NULL;
 static UINT                     nBmpWidth                   = 0;
 static UINT                     nBmpHeight                  = 0;
 
+// Контекст одномерной задачи переноса
 struct ctx_s1d
 {
   // Количество узлов в сетке
-  UINT                          kGridX;
-  UINT                          kGridT;
+  UINT32                        kGridX;
+  UINT32                        kGridT;
+  BOOL                          kLimitation;
   // Количество расчитываемых слоёв времени
   // 0 - если расчёт идёт до бесконечности
-  UINT                          kNTimes;
+  UINT32                        kNTimes;
   // Количество расчитаных слоёв времени
-  UINT                          nNTImes;
+  UINT32                        nNTImes;
   // Количество слоёв времени хранимых в памяти
-  UINT                          kMemNTimes;
+  UINT32                        kMemNTimes;
   // Название файла для записи данных
   // NULL - если не требуется запись
-  LPCSTR                        szFileName;
+  LPSTR                         szFileName;
   // Указатель на функцию решатель
   VOID                          (*rSolver)( struct ctx_s1d * const );
   // Указатель на функицю рисователь
@@ -43,60 +47,73 @@ struct ctx_s1d
   FLOAT                         kF_dT;
   FLOAT                         kF_dX;
 
+  FLOAT                         fErr;
+
+  PFLOAT                       *pU;
 };
 
-#define kGridX                  512
-
-static FLOAT                    _U1 [ kGridX ];
-static FLOAT                    _U2 [ kGridX ];
-static FLOAT                    _U3 [ kGridX ];
-static FLOAT                   *_pU1;
-static FLOAT                   *_pU2;
-static FLOAT                   *_pU3;
-
-static const FLOAT              _d_t    = 0.5f/((FLOAT)(kGridX-1));
-static const FLOAT              _d_x    = 1.0f/((FLOAT)(kGridX-1));
-
-static UINT nI = 0;
-
-// Начальные значения
-static FLOAT rU_Init ( const FLOAT x )
+// Функция заданая квадратной волной
+static FLOAT rU_WaveQuad ( const FLOAT x )
 {
-  const FLOAT c = cosf(x*10.f);
-  return x < 0.0f ? 0.0f :
-    // x < 0.15f ? 1.0f : 0.0f;
-    c > 0.0f ? c : 0.0f;
+  return cosf ( x * ((FLOAT)M_PI) * 4.0f ) > 0.0f ? 1.0f : 0.0f;
 }
-// Граничные значение
-static FLOAT rU_Left ( const FLOAT t )
+// Функция заполнения пилой
+static FLOAT rU_WaveSaw ( const FLOAT x )
 {
-  const FLOAT c = powf(cosf(t*17.0f),0.1f);
-  return t < 0.0f ? 0.0f :
-    // t < 0.1f ? 1.0f : 0.0f;
-    c > 0.0f ? c : 0.0f;
+  if ( x > 0.0f ) return fmodf ( x * 4.0f, 1.0f );
+  return 1.0f - fmodf ( -x * 4.0f, 1.0f );
+}
+// Функция заполнения пилой
+static FLOAT rU_WaveSawR ( const FLOAT x )
+{
+  if ( x > 0.0f ) return 1.0f - fmodf ( x * 4.0f, 1.0f );
+  return fmodf ( -x * 4.0f, 1.0f );
+}
+// Функция заполнения инусоидой
+static FLOAT rU_WaveSin ( const FLOAT x )
+{
+  return ( sinf ( x * ((FLOAT)M_PI) * 4.0f ) + 1.0f ) * 0.5f;
 }
 
-static FLOAT rU_Original ( const FLOAT t, const FLOAT x )
+// Функция рисолвальщик
+static VOID rS1D_Painter ( struct ctx_s1d * const p )
 {
-  return rU_Init ( x-t ) + rU_Left ( t-x );
-}
-
-static VOID rOnCreate ( )
-{
-  _pU1 = _U1;
-  _pU2 = _U2;
-  _pU3 = _U3;
-
-  for ( UINT i = 0; i < kGridX; ++i )
+  const PUINT32 pB = ((PUINT32)pBmpBuf);
+  const UINT kH = nWndHeight;
+  const UINT kX = p -> kGridX;
+  const PFLOAT pU1 = p -> pU [ 0 ];
+  const FLOAT kFT = p -> nNTImes * p -> kF_dT;
+  for ( UINT ix = 0; ix < nWndWidth; ++ix )
   {
-    _pU3 [ i ] = _pU2 [ i ] = _pU1 [ i ] =
-            rU_Init ( ((FLOAT)i) * _d_x );
-
+    const UINT kIx = ix * kX / nWndWidth;
+    const FLOAT fY1 = 0.25f + 0.5f * pU1 [ kIx ];
+    const FLOAT fY2 = 0.25f + 0.5f * p -> rU ( kIx * p -> kF_dX - kFT );
+    const UINT kIy1 = kH - ((UINT)( fY1 * kH ));
+    const UINT kIy2 = kH - ((UINT)( fY2 * kH ));
+    for ( UINT iy = 0; iy < kH; ++iy )
+    {
+      pB [ iy * nBmpWidth + ix ] =
+        ( iy < kIy1 ) ? 0x00ffffff^0x001f3fff:0x004f3f2f;
+      pB [ iy * nBmpWidth + ix ] ^=
+        ( iy < kIy2 ) ? 0x00ffffff:0;
+    }
   }
 }
 
-static VOID rOnIdle ( )
+// Решатель по  Схеме "Чехарда"
+static VOID  rS1D_Solver_1 ( struct ctx_s1d * const p )
 {
+  // Смещаем буффера
+  {
+    const PFLOAT _pUBuf = p -> pU [ p -> kMemNTimes - 1 ];
+    for ( UINT i = p -> kMemNTimes - 1; i != 0; --i )
+    {
+      p -> pU [ i ] = p -> pU [ i-1 ];
+    }
+    p -> pU [ 0 ] = _pUBuf;
+  }
+  // Увеличиваем количество итераций
+  ++ p -> nNTImes;
   /*
     Схема "Чехарда"
               u[+,0]
@@ -113,51 +130,155 @@ static VOID rOnIdle ( )
                        u[0,-] - u[0,+]
     u[+,0]  = u[-,0] + --------------- 2dt
                              2dx
+  */
+
+  const PFLOAT pU1 = p -> pU [ 0 ];
+  const PFLOAT pU2 = p -> pU [ 1 ];
+  const PFLOAT pU3 = p -> pU [ 2 ];
+
+
+  pU1 [ 0 ] =  p -> rU ( -((FLOAT)( p -> nNTImes )) * p -> kF_dT );
+  const FLOAT kF_dT_dX = p -> kF_dT / p -> kF_dX;
+
+  for ( UINT i = 1; i < p -> kGridX - 1; ++i )
+  {
+    pU1 [ i ] = pU3 [ i ] +
+        ( ( pU2 [ i-1 ] - pU2 [ i+1 ] ) * kF_dT_dX );
+  }
+  if ( p -> kLimitation )
+  {
+    for ( UINT i = 1; i < p -> kGridX - 1; ++i )
+    {
+      if ( pU1 [ i ] > 1.0f ) { pU1 [ i ] = 1.0f; }
+      if ( pU1 [ i ] < 0.0f ) { pU1 [ i ] = 0.0f; }
+    }
+  }
+  pU1 [ p -> kGridX - 1 ] = pU1 [ p -> kGridX - 2 ];
+}
+
+// Решатель по неявной четырехточечной схеме
+static VOID  rS1D_Solver_2 ( struct ctx_s1d * const p )
+{
+  // Смещаем буффера
+  if ( p -> fErr < 0.0001f )
+  {
+    const PFLOAT _pUBuf = p -> pU [ p -> kMemNTimes - 1 ];
+    for ( UINT i = p -> kMemNTimes - 1; i != 0; --i )
+    {
+      p -> pU [ i ] = p -> pU [ i-1 ];
+    }
+    p -> pU [ 0 ] = _pUBuf;
+    // Увеличиваем количество итераций
+    ++ p -> nNTImes;
+  }
+  /*
+    Неявная четырехточечная схема
+    u[+,-] == u[+,0] == u[+,+]
+                ||
+              u[0,0]
+
+    u[+,0] - u[0,0]     u[+,+] - u[+,-]
+    ---------------  +  --------------- = 0
+           dt                 2dx
+
+
+
+    2dx u[+,0] + dt u[+,+] - dt u[+,-] = 2dx u[0,0]
+    // Метод простых итераций
+    u[+,0] = u[0,0] + ( u[+,-] - u[+,+] ) dt / 2dx
 
   */
-  ++nI;
 
-    _pU1 [ 0 ] =  rU_Left ( ((FLOAT)nI) * _d_t );
+  const PFLOAT pU1 = p -> pU [ 0 ];
+  const PFLOAT pU2 = p -> pU [ 1 ];
 
-  for ( UINT i = 1; i < kGridX - 1; ++i )
+  pU1 [ 0 ] =  p -> rU ( -((FLOAT)( p -> nNTImes )) * p -> kF_dT );
+  const FLOAT kF_dT_2dX = p -> kF_dT * 0.5f / p -> kF_dX;
+  p -> fErr = 0.0f;
+  for ( UINT i = 1; i < p -> kGridX - 1; ++i )
   {
-    _pU1 [ i ] = _pU3 [ i ] +
-        ( ( _pU2 [ i-1 ] - _pU2 [ i+1 ] ) * _d_t / _d_x );
-
-    // if ( _pU [ i ] > 1.0f ) { _pU [ i ] = 0.0f; }
-    // if ( _pU [ i ] < 0.0f ) { _pU [ i ] = 0.0f; }
+    const FLOAT f = pU2 [ i ] +
+        ( ( pU1 [ i-1 ] - pU1 [ i+1 ] ) * kF_dT_2dX );
+    p -> fErr += fabsf ( f - pU1 [ i ] );
+    pU1 [ i ] = f;
   }
-    _pU1 [ kGridX - 1 ] = _pU1 [ kGridX - 2 ];
+  pU1 [ p -> kGridX - 1 ] = pU1 [ p -> kGridX - 2 ];
+  // if ( p -> kLimitation )
+  // {
+  //   for ( UINT i = 1; i < p -> kGridX - 1; ++i )
+  //   {
+  //     if ( pU1 [ i ] > 1.0f ) { pU1 [ i ] = 1.0f; }
+  //     if ( pU1 [ i ] < 0.0f ) { pU1 [ i ] = 0.0f; }
+  //   }
+  // }
+}
 
+static struct ctx_s1d * rS1D_Create_1 ( const UINT kGridX, const UINT kGridT,
+        const UINT kNTimes, const LPCSTR szFileName )
+{
+
+  const UINT kMemNTimes = 2;
+  const UINT nSFN = szFileName ? strlen ( szFileName ) + 1 : 0;
+  const UINT nSNU = sizeof(PFLOAT) * kMemNTimes;
+  const UINT nSS = sizeof(struct ctx_s1d) + sizeof(FLOAT) * kGridX * kMemNTimes;
+  const UINT nSSF = nSNU + nSS + nSFN;
+  struct ctx_s1d * const p = (struct ctx_s1d*) malloc ( nSSF );
+  assert ( p );
+  memset ( p, 0, nSSF );
+  p -> kGridX                   = kGridX;
+  p -> kGridT                   = kGridT;
+  p -> kLimitation              = FALSE;
+  p -> kNTimes                  = kNTimes;
+  p -> kMemNTimes               = kMemNTimes;
+  p -> rSolver                  = rS1D_Solver_2;
+  p -> rPainter                 = rS1D_Painter;
+  p -> rU                       = rU_WaveSawR;
+  p -> kF_dX                    = 1.0f / (FLOAT)(kGridX-1);
+  p -> kF_dT                    = 1.0f / (FLOAT)(kGridT-1);
+  p -> pU = (PFLOAT*)( ((PVOID)p) + sizeof(struct ctx_s1d) );
+  p -> pU [ 0 ] = (PFLOAT)( ((PVOID)p) + sizeof(struct ctx_s1d) + nSNU );
+  for ( UINT i = 1; i < kMemNTimes; ++i )
   {
-    const PFLOAT _pUBuf = _pU1;
-    _pU1 = _pU3;
-    _pU3 = _pU2;
-    _pU2 = _pUBuf;
+    p -> pU [ i ] = p -> pU [ i-1 ] + kGridX;
+  }
+  if ( szFileName )
+  {
+    p -> szFileName = (LPSTR)( ((PVOID)p) + nSS + nSNU );
+    memcpy ( p -> szFileName, szFileName, nSFN );
   }
 
+  for ( UINT ix = 0; ix < kGridX; ++ix )
+  {
+    const FLOAT fU = p -> rU ( ix * p -> kF_dX );
+    for ( UINT i = 0; i < kMemNTimes; ++i )
+    {
+      (p -> pU [ i ])[ ix ] = fU;
+    }
+  }
+
+  return p;
+}
+
+static struct ctx_s1d * pS1D = NULL;
+
+static VOID rOnCreate ( )
+{
+  pS1D = rS1D_Create_1 ( 1024, 2048, 0, NULL );
+  assert ( pS1D );
+}
+
+
+static VOID rOnIdle ( )
+{
+  assert ( pS1D );
+  pS1D -> rSolver ( pS1D );
   InvalidateRect ( g_hWnd, NULL, FALSE );
 }
 
 static VOID rOnPaint ( const HDC hDC )
 {
-  const PUINT32 pB = ((PUINT32)pBmpBuf);
-  const UINT nH = nWndHeight;
-  for ( UINT ix = 0; ix < nWndWidth; ++ix )
-  {
-    const UINT kx = ix * kGridX / nWndWidth;
-    #define _D1 ( _pU2 [ kx ] )
-    #define _D2 ( rU_Original ( nI * _d_t, kx * _d_x ) )
-    const UINT k_1 = nH - ((UINT)(( _D1 * 0.5f + 0.25f ) * nH));
-    const UINT k_2 = nH - ((UINT)(( _D2 * 0.5f + 0.25f ) * nH));
-    for ( UINT iy = 0; iy < nH; ++iy )
-    {
-      pB [ iy * nBmpWidth + ix ] =
-        ( iy < k_1 ) ? 0x00ffffff^0x001f3fff:0x004f3f2f;
-      pB [ iy * nBmpWidth + ix ] ^=
-        ( iy < k_2 ) ? 0x00ffffff:0;
-    }
-  }
+  assert ( pS1D );
+  pS1D -> rPainter ( pS1D );
 
 }
 
