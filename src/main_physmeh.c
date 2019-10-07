@@ -217,7 +217,7 @@ static struct ctx_s1d * rS1D_Create_1 ( const UINT kGridX, const UINT kGridT,
         const UINT kNTimes, const LPCSTR szFileName )
 {
 
-  const UINT kMemNTimes = 2;
+  const UINT kMemNTimes = 8;
   const UINT nSFN = szFileName ? strlen ( szFileName ) + 1 : 0;
   const UINT nSNU = sizeof(PFLOAT) * kMemNTimes;
   const UINT nSS = sizeof(struct ctx_s1d) + sizeof(FLOAT) * kGridX * kMemNTimes;
@@ -230,9 +230,9 @@ static struct ctx_s1d * rS1D_Create_1 ( const UINT kGridX, const UINT kGridT,
   p -> kLimitation              = FALSE;
   p -> kNTimes                  = kNTimes;
   p -> kMemNTimes               = kMemNTimes;
-  p -> rSolver                  = rS1D_Solver_2;
+  p -> rSolver                  = rS1D_Solver_1;
   p -> rPainter                 = rS1D_Painter;
-  p -> rU                       = rU_WaveSawR;
+  p -> rU                       = rU_WaveSaw;
   p -> kF_dX                    = 1.0f / (FLOAT)(kGridX-1);
   p -> kF_dT                    = 1.0f / (FLOAT)(kGridT-1);
   p -> pU = (PFLOAT*)( ((PVOID)p) + sizeof(struct ctx_s1d) );
