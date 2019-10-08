@@ -10,6 +10,7 @@
 static HINSTANCE                g_hInstance                 = NULL;
 static HWND                     g_hWnd                      = NULL;
 static const LPCTSTR            g_cszClassName = TEXT( "WCT: Gilyazeev A.R." );
+static LPSTR                    g_szCL                      = NULL;
 
 static HDC                      hWndDC                      = NULL;
 static UINT                     nWndWidth                   = 0;
@@ -21,10 +22,10 @@ static PBYTE                    pBmpBuf                     = NULL;
 static UINT                     nBmpWidth                   = 0;
 static UINT                     nBmpHeight                  = 0;
 
-static LPCSTR                   szFileName                  = "data.bin";
+static LPCSTR                   szFileName                  = "_data.bin";
 static FILE                    *pF                          = NULL;
 
-static UINT                     kN_GridX                    = 256;
+static UINT32                   kN_GridX                    = 256;
 
 static double                   kR_Alpha                    = 2.0;
 static double                   kR_K_Mu                     = 1e-1;
@@ -32,6 +33,8 @@ static double                   kR_dX;
 static double                   kR_1_dX;
 static double                   kR_dT                       = 1e-3;
 static double                   kR_dT_dX;
+static double                   kR_S_t                      = 1.0;
+static double                   kR_S_x                      = 0.0;
 
 static double                  *pMemPtr                     = NULL;
 static double                  *pR_S                        = NULL;
@@ -39,6 +42,7 @@ static double                  *pR_Phi                      = NULL;
 static double                  *pR_f                        = NULL;
 static double                  *pR_P                        = NULL;
 static double                  *pR_U                        = NULL;
+static double                  *pR_1_Sum_Phi                = NULL;
 
 static double                  *pRG_S                       = NULL;
 static double                  *pRG_Phi                     = NULL;
@@ -47,9 +51,9 @@ static double                  *pRG_P                       = NULL;
 static double                  *pRG_U                       = NULL;
 
 static double                   fR_P_Err;
-static UINT                     nN_P_Iteration;
-static UINT                     nN_S_Iteration;
-static UINT                     nN_S_IterationCurrent;
+static UINT32                   nN_P_I;
+static UINT32                   nN_S_I;
+static UINT                     nN_P_II;
 
 static HBRUSH                   hBrush_S_fg                 = NULL;
 static HBRUSH                   hBrush_S_bg                 = NULL;
@@ -63,58 +67,98 @@ static HBRUSH                   hBrush_U_fg                 = NULL;
 static HBRUSH                   hBrush_U_bg                 = NULL;
 
 static const UINT               kN_HeaderSize               =
-                                sizeof(kN_GridX) + sizeof(nN_S_Iteration) +
-                                sizeof(kR_Alpha) + sizeof(kR_K_Mu) + sizeof(kR_dT);
+                                sizeof(kN_GridX) + sizeof(nN_S_I) +
+                                sizeof(kR_Alpha) + sizeof(kR_K_Mu) +
+                                sizeof(kR_dT) + sizeof(kR_S_t) + sizeof(kR_S_x);
 
+static BOOL                     bFlag_Dbg                   = FALSE;
+static BOOL                     bFlag_Graph                 = FALSE;
+static BOOL                     bFlag_FileRewrite           = FALSE;
 
 
 static VOID rSolutionFile_HeaderWrite ( )
 {
   if ( pF == NULL ) return;
   fseek ( pF , 0, SEEK_SET );
-  #define _wrtie(a) fwrite ( &a, 1, sizeof(a), pF )
-  _wrtie ( kN_GridX );
-  _wrtie ( nN_S_Iteration );
-  _wrtie ( kR_Alpha );
-  _wrtie ( kR_K_Mu );
-  _wrtie ( kR_dT );
+  #define D_write(a) fwrite ( &a, 1, sizeof(a), pF )
+  D_write ( kN_GridX );
+  D_write ( nN_S_I );
+  D_write ( kR_Alpha );
+  D_write ( kR_K_Mu );
+  D_write ( kR_dT );
+  D_write ( kR_S_t );
+  D_write ( kR_S_x );
+  #undef D_write
+
+  if ( !bFlag_Dbg ) return;
+
+  const UINT32 kN_FrameSize = sizeof(double) * kN_GridX * 2;
+  FILE * const pFd = fopen ( "_writed.txt", "ab" );
+  #define D_write_U(a) fprintf ( pFd, "%-10.10s (% 2d) = %d\n", #a, sizeof(a), a );
+  #define D_write_D(a) fprintf ( pFd, "%-10.10s (% 2d) = %f\n", #a, sizeof(a), a );
+  D_write_U ( kN_HeaderSize );
+  D_write_U ( kN_FrameSize );
+  D_write_U ( kN_GridX );
+  D_write_U ( nN_S_I );
+  D_write_D ( kR_Alpha );
+  D_write_D ( kR_K_Mu );
+  D_write_D ( kR_dT );
+  D_write_D ( kR_S_t );
+  D_write_D ( kR_S_x );
+  #undef D_write_U
+  #undef D_write_D
+  fprintf ( pFd, "==============================\n" );
+  fclose ( pFd );
 }
 static VOID rSolutionFile_HeaderRead ( )
 {
   if ( pF == NULL ) return;
   fseek ( pF , 0, SEEK_SET );
-  #define _read(a) fread ( &a, 1, sizeof(a), pF )
-  _read ( kN_GridX );
-  _read ( nN_S_Iteration );
-  _read ( kR_Alpha );
-  _read ( kR_K_Mu );
-  _read ( kR_dT );
+  #define D_read(a) fread ( &a, 1, sizeof(a), pF )
+  D_read ( kN_GridX );
+  D_read ( nN_S_I );
+  D_read ( kR_Alpha );
+  D_read ( kR_K_Mu );
+  D_read ( kR_dT );
+  D_read ( kR_S_t );
+  D_read ( kR_S_x );
+  #undef D_read
+
+  if ( !bFlag_Dbg ) return;
+
+  const UINT32 kN_FrameSize = sizeof(double) * kN_GridX * 2;
+  FILE * const pFd = fopen ( "_readed.txt", "ab" );
+  #define D_write_U(a) fprintf ( pFd, "%-10.10s (% 2d) = %d\n", #a, sizeof(a), a );
+  #define D_write_D(a) fprintf ( pFd, "%-10.10s (% 2d) = %f\n", #a, sizeof(a), a );
+  D_write_U ( kN_HeaderSize );
+  D_write_U ( kN_FrameSize );
+  D_write_U ( kN_GridX );
+  D_write_U ( nN_S_I );
+  D_write_D ( kR_Alpha );
+  D_write_D ( kR_K_Mu );
+  D_write_D ( kR_dT );
+  D_write_D ( kR_S_t );
+  D_write_D ( kR_S_x );
+  #undef D_write_U
+  #undef D_write_D
+  fprintf ( pFd, "==============================\n" );
+  fclose ( pFd );
 }
 static VOID rSolutionFile_FrameAdd ( )
 {
   if ( pF == NULL ) return;
-  const UINT _Sz = sizeof(double) * kN_GridX;
+  const UINT nSz = sizeof(double) * kN_GridX;
   fseek ( pF , 0, SEEK_END );
-  fwrite ( pR_S, 1, _Sz, pF );
-  fwrite ( pR_P, 1, _Sz, pF );
+  fwrite ( pR_S, 1, nSz, pF );
+  fwrite ( pR_P, 1, nSz, pF );
 }
 static VOID rSolutionFile_FrameRead ( const UINT i )
 {
   if ( pF == NULL ) return;
-  const UINT _Sz = sizeof(double) * kN_GridX;
-  fseek ( pF , kN_HeaderSize + ( _Sz * i ), SEEK_SET );
-  fread ( pR_S, 1, _Sz, pF );
-  fread ( pR_P, 1, _Sz, pF );
-}
-
-static double rR_S_x ( const double x )
-{
-  return 0.0;
-}
-
-static double rR_S_t ( const double t )
-{
-  return 1.0;
+  const UINT nSz = sizeof(double) * kN_GridX;
+  fseek ( pF , kN_HeaderSize + ( nSz * i * 2 ), SEEK_SET );
+  fread ( pR_S, 1, nSz, pF );
+  fread ( pR_P, 1, nSz, pF );
 }
 
 static VOID rSolve_f ( )
@@ -130,20 +174,38 @@ static VOID rSolve_Phi ( )
   {
     pR_Phi [ i ] = pR_f [ i ] + kR_K_Mu * pow ( 1.0 - pR_S [ i ], kR_Alpha );
   }
+  for ( UINT i = 1; i < kN_GridX-1; ++i )
+  {
+    pR_1_Sum_Phi [ i ] = 1.0 / ( pR_Phi [ i-1 ] + pR_Phi [ i ] );
+  }
 }
 static VOID rSolve_P ( )
 {
+  double fR_P_Err_Old = fR_P_Err;
   fR_P_Err = 0.0;
   double fR_P_Buf;
 
   for ( UINT i = 1; i < kN_GridX-1; ++i )
   {
+    /* Old
     fR_P_Buf = ( pR_Phi [ i-1 ] * pR_P [ i-1 ] + pR_Phi [ i ] * pR_P [ i+1 ] ) /
             ( pR_Phi [ i-1 ] + pR_Phi [ i ] );
+    */
+    fR_P_Buf = ( pR_Phi [ i-1 ] * pR_P [ i-1 ] + pR_Phi [ i ] * pR_P [ i+1 ] ) *
+            pR_1_Sum_Phi [ i ];
     fR_P_Err += fabs ( fR_P_Buf - pR_P [ i ] );
     pR_P [ i ] = fR_P_Buf;
   }
-  ++nN_P_Iteration;
+  ++nN_P_I;
+
+  if ( fR_P_Err_Old == fR_P_Err )
+  {
+    ++nN_P_II;
+  }
+  else
+  {
+    nN_P_II = 0;
+  }
 }
 static VOID rSolve_U ( )
 {
@@ -158,8 +220,7 @@ static VOID rSolve_S ( )
   {
     pR_S [ i ] += kR_dT_dX * ( pR_U [ i-1 ] - pR_U [ i ] );
   }
-  ++nN_S_Iteration;
-  nN_P_Iteration = 0;
+  nN_P_I = 0;
 }
 
 static VOID rOnCreate ( )
@@ -175,8 +236,9 @@ static VOID rOnCreate ( )
   hBrush_U_fg   = CreateSolidBrush ( RGB ( 0x7f, 0xff, 0x7f ) );
   hBrush_U_bg   = CreateSolidBrush ( RGB ( 0x1f, 0x1f, 0x1f ) );
 
-  nN_P_Iteration = 0;
-  nN_S_Iteration = 0;
+  nN_P_I = 0;
+  nN_S_I = 0;
+  fR_P_Err = 0.0;
 
 
   VOID _malloc ( )
@@ -187,6 +249,7 @@ static VOID rOnCreate ( )
     pR_f    = pMemPtr + kN_GridX * (2+0);
     pR_P    = pMemPtr + kN_GridX * (3+0);
     pR_U    = pMemPtr + kN_GridX * (4+0);
+    pR_1_Sum_Phi = pMemPtr + kN_GridX * (5+0);
 
     pRG_S   = pMemPtr + kN_GridX * (0+8);
     pRG_Phi = pMemPtr + kN_GridX * (1+8);
@@ -199,7 +262,10 @@ static VOID rOnCreate ( )
     kR_dT_dX = kR_dT * kR_1_dX;
   }
 
-  pF = fopen ( szFileName, "rb" );
+  if ( !bFlag_FileRewrite )
+  {
+    pF = fopen ( szFileName, "r+b" );
+  }
   if ( pF == NULL )
   {
     pF = fopen ( szFileName, "wb" );
@@ -209,16 +275,15 @@ static VOID rOnCreate ( )
 
     for ( UINT i = 0; i < kN_GridX; ++i )
     {
-      pR_S [ i ] = rR_S_x ( ((double)i) * kR_dX );
+      pR_S [ i ] = kR_S_x;
     }
-    pR_S [ 0 ] = rR_S_t ( 0.0 );
+    pR_S [ 0 ] = kR_S_t;
 
     for ( UINT i = 0; i < kN_GridX; ++i )
     {
       pR_P [ i ] = 1.0 - ( ((double)i) * kR_dX );
     }
 
-    rSolutionFile_FrameAdd ( );
     fclose ( pF );
     pF = fopen ( szFileName, "r+b" );
   }
@@ -228,7 +293,24 @@ static VOID rOnCreate ( )
 
     _malloc ( );
 
-    rSolutionFile_FrameRead ( nN_S_Iteration );
+    if ( nN_S_I == 0 )
+    {
+      for ( UINT i = 0; i < kN_GridX; ++i )
+      {
+        pR_S [ i ] = kR_S_x;
+      }
+      pR_S [ 0 ] = kR_S_t;
+
+      for ( UINT i = 0; i < kN_GridX; ++i )
+      {
+        pR_P [ i ] = 1.0 - ( ((double)i) * kR_dX );
+      }
+    }
+    else
+    {
+      rSolutionFile_FrameRead ( nN_S_I-1 );
+    }
+
   }
 
   rSolve_f ( );
@@ -237,11 +319,13 @@ static VOID rOnCreate ( )
 
 static VOID rOnDestroy ( )
 {
+  rSolutionFile_HeaderWrite ( );
+
   if ( pF )
   {
-    rSolutionFile_HeaderWrite ( );
     fclose ( pF );
   }
+
   _mm_free ( pMemPtr );
   pMemPtr = NULL;
 
@@ -261,15 +345,31 @@ static VOID rOnDestroy ( )
 static VOID rOnIdle ( )
 {
   rSolve_P ( );
-  if ( fR_P_Err == 0.0 )
+  if ( nN_P_II > 0x100 || fR_P_Err == 0.0 )
   {
+    ++nN_S_I;
+    rSolutionFile_FrameAdd ( );
     rSolve_U ( );
     rSolve_S ( );
-    rSolutionFile_FrameAdd ( );
     rSolve_f ( );
     rSolve_Phi ( );
   }
-  InvalidateRect ( g_hWnd, NULL, FALSE );
+  if ( bFlag_Graph )
+  {
+    InvalidateRect ( g_hWnd, NULL, FALSE );
+  }
+
+  if ( !bFlag_Dbg ) return;
+
+  CHAR buf[512];
+  UINT i = 0;
+  #define D_printf(...) TextOutA ( hWndDC, 0, 16*(i++), buf, sprintf ( buf, __VA_ARGS__ ) )
+  D_printf( "Err: %.40lf", fR_P_Err );
+  D_printf( "I_P_II: %08d", nN_P_II );
+  D_printf( "I_P: %08d", nN_P_I );
+  D_printf( "I_S: %08d", nN_S_I );
+  #undef D_printf
+
 }
 
 static VOID rPlot ( const HDC hDC, const RECT rc,
@@ -298,7 +398,6 @@ static VOID rOnPaint ( const HDC hDC )
 {
   const UINT nH = nWndHeight;
   const UINT nW = nWndWidth;
-  static UINT i = 0;
   RECT rc =
   {
     .left     = 0,
@@ -306,7 +405,7 @@ static VOID rOnPaint ( const HDC hDC )
     .top      = 0,
     .bottom   = nH/5,
   };
-  if (nN_P_Iteration <= 5 )
+  if ( nN_P_I <= 5 || bFlag_Graph == 2 )
   {
     rPlot ( hBmpDC, rc, pR_S, kN_GridX, hBrush_S_bg, hBrush_S_fg, 0.5, 0.25 );
     rc.top      = rc.bottom;
@@ -325,31 +424,22 @@ static VOID rOnPaint ( const HDC hDC )
     BitBlt ( hDC, 0, 0, nWndWidth, nWndHeight, hBmpDC, 0, 0, SRCCOPY );
   }
 
-  CHAR buf[512];
-  TextOutA ( hDC, 0, 16*0, buf, sprintf ( buf, "Err: %.40lf", fR_P_Err ) );
-  TextOutA ( hDC, 0, 16*1, buf, sprintf ( buf, "I_P: % 8u", nN_P_Iteration ) );
-  TextOutA ( hDC, 0, 16*2, buf, sprintf ( buf, "I_S: % 8u", nN_S_Iteration ) );
 }
 
 LRESULT CALLBACK WndProc ( HWND hWnd, UINT uMsg, WPARAM wParam,
         LPARAM lParam )
 {
-  static BOOL bMoseDown = FALSE;
   switch ( uMsg )
   {
     case WM_CREATE:
     {
-      hWndDC = GetWindowDC ( hWnd );
+      // hWndDC = GetWindowDC ( hWnd );
+      hWndDC = GetDC ( hWnd );
       assert ( hWndDC );
       hBmpDC = CreateCompatibleDC ( hWndDC );
       assert ( hBmpDC );
 
       rOnCreate ( );
-      return 0;
-    }
-    case WM_LBUTTONUP:
-    {
-      bMoseDown = FALSE;
       return 0;
     }
     case WM_SIZE:
@@ -413,7 +503,27 @@ LRESULT CALLBACK WndProc ( HWND hWnd, UINT uMsg, WPARAM wParam,
       PAINTSTRUCT ps;
       HDC hDC = BeginPaint ( hWnd, &ps );
       assert ( hDC );
-      rOnPaint ( hDC );
+      if ( bFlag_Graph )
+      {
+        rOnPaint ( hDC );
+      }
+
+      CHAR buf[512];
+      UINT i = 8;
+      #define D_printf(...) TextOutA ( hDC, 0, 16*(i++), buf, sprintf ( buf, __VA_ARGS__ ) )
+      // TextOutA ( hDC, 0, 16*(i++), g_szCL, strlen ( g_szCL ) );
+      D_printf ( g_szCL );
+      D_printf ( "FileName = %s", szFileName );
+      D_printf ( "kN_GridX = %d", kN_GridX );
+      D_printf ( "kR_Alpha = %f", kR_Alpha );
+      D_printf ( "kR_K_Mu = %f", kR_K_Mu );
+      D_printf ( "kR_dT = %f", kR_dT );
+      D_printf ( "kR_S_t = %f", kR_S_t );
+      D_printf ( "kR_S_x = %f", kR_S_x );
+
+      #undef D_printf
+
+
       EndPaint ( hWnd, &ps );
       return 0;
     }
@@ -425,6 +535,113 @@ LRESULT CALLBACK WndProc ( HWND hWnd, UINT uMsg, WPARAM wParam,
 INT APIENTRY wWinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         LPWSTR lpCmdLine, INT nShowCmd )
 {
+  g_szCL = GetCommandLineA ( );
+  LPSTR szCL = g_szCL;
+  if ( *szCL == '"' )
+  {
+    ++szCL;
+    while ( *szCL != '"' )
+    {
+      if ( *szCL == 0 ) goto P_BEGIN;
+      ++szCL;
+    }
+    ++szCL;
+  }
+  else
+  {
+    while ( *szCL != ' ' )
+    {
+      if ( *szCL == 0 ) goto P_BEGIN;
+      ++szCL;
+    }
+  }
+  while ( *szCL == ' ' )
+  {
+    ++szCL;
+  }
+  if ( *szCL == 0 ) goto P_BEGIN;
+
+  while ( *szCL != '-' )
+  {
+    switch ( *szCL )
+    {
+      case 0: goto P_BEGIN;
+      case 'D': case 'd': bFlag_Dbg                         = TRUE; break;
+      case 'V': case 'v': bFlag_Graph                       = TRUE; break;
+      case 'N': case 'n': bFlag_FileRewrite                 = TRUE; break;
+      case '-':
+        {
+          #define D_cmp(a) ((memcmp(szCL,a,sizeof(a)-1)==0)&&((szCL+=sizeof(a)-1)))
+          if ( D_cmp ("-f=\"" ) || D_cmp ("-file=\"" ) )
+          {
+            szFileName = szCL;
+            while ( *szCL != '\"' )
+            {
+              if ( *szCL == 0 ) goto P_BEGIN;
+              ++szCL;
+            }
+            *szCL = 0;
+            ++szCL;
+            continue;
+          }
+          else
+          if ( D_cmp("-f=") || D_cmp("-file=") )
+          {
+            szFileName = szCL;
+            while ( *szCL != ' ' )
+            {
+              if ( *szCL == 0 ) goto P_BEGIN;
+              ++szCL;
+            }
+            *szCL = 0;
+            ++szCL;
+            continue;
+          }
+          else
+          if ( D_cmp("-N=") || D_cmp("-kN_GridX=") || D_cmp("-GridX=") )
+          {
+            kN_GridX = strtoul ( szCL, &szCL, 0 );
+            continue;
+          }
+          else
+          if ( D_cmp("-A=") || D_cmp("-kR_Alpha=") || D_cmp("-Alpha=") )
+          {
+            kR_Alpha = strtod  ( szCL, &szCL );
+            continue;
+          }
+          else
+          if ( D_cmp("-K=") || D_cmp("-kR_K_Mu=") || D_cmp("-K_Mu=") )
+          {
+            kR_K_Mu = strtod  ( szCL, &szCL );
+            continue;
+          }
+          else
+          if ( D_cmp("-T=") || D_cmp("-kR_dT=") || D_cmp("-dT=") )
+          {
+            kR_dT = strtod  ( szCL, &szCL );
+            continue;
+          }
+          else
+          if ( D_cmp("-St=") || D_cmp("-kR_S_t=") || D_cmp("-S_t=") )
+          {
+            kR_S_t = strtod  ( szCL, &szCL );
+            continue;
+          }
+          else
+          if ( D_cmp("-Sx=") || D_cmp("-kR_S_x=") || D_cmp("-S_x=") )
+          {
+            kR_S_x = strtod  ( szCL, &szCL );
+            continue;
+          }
+          #undef D_cmp
+        }
+        continue;
+    }
+    ++szCL;
+  }
+
+  P_BEGIN:
+
   g_hInstance = hInstance;
   {
     WNDCLASSEX wc = {

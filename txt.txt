@@ -1,0 +1,996 @@
+The following options are target specific:
+  -m128bit-long-double        sizeof(long double) is 16.
+  -m16                        Generate 16bit i386 code.
+  -m32                        Generate 32bit i386 code.
+  -m3dnow                     Support 3DNow! built-in functions.
+  -m3dnowa                    Support Athlon 3Dnow! built-in functions.
+  -m64                        Generate 64bit x86-64 code.
+  -m80387                     Use hardware fp.
+  -m8bit-idiv                 Expand 32bit/64bit integer divide into 8bit
+                              unsigned integer divide with run-time check.
+  -m96bit-long-double         sizeof(long double) is 12.
+  -mabi=                      Generate code that conforms to the given ABI.
+  -mabm                       Support code generation of Advanced Bit
+                              Manipulation (ABM) instructions.
+  -maccumulate-outgoing-args  Reserve space for outgoing arguments in the
+                              function prologue.
+  -maddress-mode=             Use given address mode.
+  -madx                       Support flag-preserving add-carry instructions.
+  -maes                       Support AES built-in functions and code
+                              generation.
+  -malign-data=               Use the given data alignment.
+  -malign-double              Align some doubles on dword boundary.
+  -malign-functions=          Function starts are aligned to this power of 2.
+  -malign-jumps=              Jump targets are aligned to this power of 2.
+  -malign-loops=              Loop code aligned to this power of 2.
+  -malign-stringops           Align destination of the string operations.
+  -march=                     Generate code for given CPU.
+  -masm=                      Use given assembler dialect.
+  -mavx                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2 and AVX built-in functions and code
+                              generation.
+  -mavx2                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and AVX2 built-in functions and code
+                              generation.
+  -mavx256-split-unaligned-load Split 32-byte AVX unaligned load.
+  -mavx256-split-unaligned-store Split 32-byte AVX unaligned store.
+  -mavx5124fmaps              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124FMAPS built-
+                              in functions and code generation.
+  -mavx5124vnniw              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124VNNIW built-
+                              in functions and code generation.
+  -mavx512bitalg              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512BITALG built-
+                              in functions and code generation.
+  -mavx512bw                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512BW built-
+                              in functions and code generation.
+  -mavx512cd                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512CD built-
+                              in functions and code generation.
+  -mavx512dq                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512DQ built-
+                              in functions and code generation.
+  -mavx512er                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512ER built-
+                              in functions and code generation.
+  -mavx512f                   Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F built-in functions
+                              and code generation.
+  -mavx512ifma                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512IFMA
+                              built-in functions and code generation.
+  -mavx512pf                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512PF built-
+                              in functions and code generation.
+  -mavx512vbmi                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VBMI
+                              built-in functions and code generation.
+  -mavx512vbmi2               Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VBMI2 built-
+                              in functions and code generation.
+  -mavx512vl                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VL built-
+                              in functions and code generation.
+  -mavx512vnni                Support AVX512VNNI built-in functions and code
+                              generation.
+  -mavx512vpopcntdq           Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VPOPCNTDQ
+                              built-in functions and code generation.
+  -mbmi                       Support BMI built-in functions and code
+                              generation.
+  -mbmi2                      Support BMI2 built-in functions and code
+                              generation.
+  -mbranch-cost=<0,5>         Branches are this expensive (arbitrary units).
+  -mcall-ms2sysv-xlogues      Use libgcc stubs to save and restore registers
+                              clobbered by 64-bit Microsoft to System V ABI
+                              calls.
+  -mcet-switch                Turn on CET instrumentation for switch statements
+                              that use a jump table and an indirect jump.
+  -mcld                       Generate cld instruction in the function prologue.
+  -mclflushopt                Support CLFLUSHOPT instructions.
+  -mclwb                      Support CLWB instruction.
+  -mclzero                    Support CLZERO built-in functions and code
+                              generation.
+  -mcmodel=                   Use given x86-64 code model.
+  -mconsole                   Create console application.
+  -mcpu=                      Same as -mtune=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mcrc32                     Support code generation of crc32 instruction.
+  -mcx16                      Support code generation of cmpxchg16b instruction.
+  -mdispatch-scheduler        Do dispatch scheduling if processor is bdver1,
+                              bdver2, bdver3, bdver4 or znver1 and Haifa
+                              scheduling is selected.
+  -mdll                       Generate code for a DLL.
+  -mdump-tune-features        This option lacks documentation.
+  -mf16c                      Support F16C built-in functions and code
+                              generation.
+  -mfancy-math-387            Generate sin, cos, sqrt for FPU.
+  -mfentry                    Emit profiling counter call at function entry
+                              before prologue.
+  -mfma                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and FMA built-in functions and code
+                              generation.
+  -mfma4                      Support FMA4 built-in functions and code
+                              generation.
+  -mforce-drap                Always use Dynamic Realigned Argument Pointer
+                              (DRAP) to realign stack.
+  -mforce-indirect-call       Make all function calls indirect.
+  -mfp-ret-in-387             Return values of functions in FPU registers.
+  -mfpmath=                   Generate floating point mathematics using given
+                              instruction set.
+  -mfsgsbase                  Support FSGSBASE built-in functions and code
+                              generation.
+  -mfunction-return=          Convert function return to call and return thunk.
+  -mfused-madd                Same as -ffp-contract=.  Use the latter option
+                              instead.  Uses of this option are diagnosed.
+  -mfxsr                      Support FXSAVE and FXRSTOR instructions.
+  -mgeneral-regs-only         Generate code which uses only the general
+                              registers.
+  -mgfni                      Support GFNI built-in functions and code
+                              generation.
+  -mhard-float                Use hardware fp.
+  -mhle                       Support Hardware Lock Elision prefixes.
+  -miamcu                     Generate code that conforms to Intel MCU psABI.
+  -mieee-fp                   Use IEEE math for fp comparisons.
+  -mincoming-stack-boundary=  Assume incoming stack aligned to this power of 2.
+  -mindirect-branch-register  Force indirect call and jump via register.
+  -mindirect-branch=          Convert indirect call and jump to call and return
+                              thunks.
+  -minline-all-stringops      Inline all known string operations.
+  -minline-stringops-dynamically Inline memset/memcpy string operations, but
+                              perform inline version only for small blocks.
+  -mintel-syntax              Same as -masm=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mlarge-data-threshold=<number> Data greater than given threshold will go
+                              into .ldata section in x86-64 medium model.
+  -mlong-double-128           Use 128-bit long double.
+  -mlong-double-64            Use 64-bit long double.
+  -mlong-double-80            Use 80-bit long double.
+  -mlwp                       Support LWP built-in functions and code
+                              generation.
+  -mlzcnt                     Support LZCNT built-in function and code
+                              generation.
+  -mmemcpy-strategy=          Specify memcpy expansion strategy when expected
+                              size is known.
+  -mmemset-strategy=          Specify memset expansion strategy when expected
+                              size is known.
+  -mmitigate-rop              Attempt to avoid generating instruction sequences
+                              containing ret bytes.
+  -mmmx                       Support MMX built-in functions.
+  -mmovbe                     Support code generation of movbe instruction.
+  -mmovdir64b                 Support MOVDIR64B built-in functions and code
+                              generation.
+  -mmovdiri                   Support MOVDIRI built-in functions and code
+                              generation.
+  -mmpx                       Support MPX code generation.
+  -mms-bitfields              Use native (MS) bitfield layout.
+  -mmwaitx                    Support MWAITX and MONITORX built-in functions
+                              and code generation.
+  -mno-align-stringops        This option lacks documentation.
+  -mno-default                Clear all tune features.
+  -mno-fancy-math-387         This option lacks documentation.
+  -mno-push-args              This option lacks documentation.
+  -mno-red-zone               This option lacks documentation.
+  -mno-sse4                   Do not support SSE4.1 and SSE4.2 built-in
+                              functions and code generation.
+  -mnop-fun-dllimport         Ignore dllimport for functions.
+  -mnop-mcount                Generate mcount/__fentry__ calls as nops. To
+                              activate they need to be patched in.
+  -momit-leaf-frame-pointer   Omit the frame pointer in leaf functions.
+  -mpc32                      Set 80387 floating-point precision to 32-bit.
+  -mpc64                      Set 80387 floating-point precision to 64-bit.
+  -mpc80                      Set 80387 floating-point precision to 80-bit.
+  -mpclmul                    Support PCLMUL built-in functions and code
+                              generation.
+  -mpcommit                   This option lacks documentation.  Uses of this
+                              option are diagnosed.
+  -mpconfig                   Support PCONFIG built-in functions and code
+                              generation.
+  -mpe-aligned-commons        Use the GNU extension to the PE format for
+                              aligned common data.
+  -mpku                       Support PKU built-in functions and code
+                              generation.
+  -mpopcnt                    Support code generation of popcnt instruction.
+  -mprefer-avx128             Use 128-bit AVX instructions instead of 256-bit
+                              AVX instructions in the auto-vectorizer.  Same as
+                              -mprefer-vector-width=.
+  -mprefer-vector-width=      Use given register vector width instructions
+                              instead of maximum register width in the auto-
+                              vectorizer.
+  -mpreferred-stack-boundary= Attempt to keep stack aligned to this power of 2.
+  -mprefetchwt1               Support PREFETCHWT1 built-in functions and code
+                              generation.
+  -mprfchw                    Support PREFETCHW instruction.
+  -mpush-args                 Use push instructions to save outgoing arguments.
+  -mrdpid                     Support RDPID built-in functions and code
+                              generation.
+  -mrdrnd                     Support RDRND built-in functions and code
+                              generation.
+  -mrdseed                    Support RDSEED instruction.
+  -mrecip                     Generate reciprocals instead of divss and sqrtss.
+  -mrecip=                    Control generation of reciprocal estimates.
+  -mrecord-mcount             Generate __mcount_loc section with all mcount or
+                              __fentry__ calls.
+  -mred-zone                  Use red-zone in the x86-64 code.
+  -mregparm=                  Number of registers used to pass integer
+                              arguments.
+  -mrtd                       Alternate calling convention.
+  -mrtm                       Support RTM built-in functions and code
+                              generation.
+  -msahf                      Support code generation of sahf instruction in
+                              64bit x86-64 code.
+  -msgx                       Support SGX built-in functions and code
+                              generation.
+  -msha                       Support SHA1 and SHA256 built-in functions and
+                              code generation.
+  -mshstk                     Enable shadow stack built-in functions from
+                              Control-flow Enforcement Technology (CET).
+  -mskip-rax-setup            Skip setting up RAX register when passing
+                              variable arguments.
+  -msoft-float                Do not use hardware fp.
+  -msse                       Support MMX and SSE built-in functions and code
+                              generation.
+  -msse2                      Support MMX, SSE and SSE2 built-in functions and
+                              code generation.
+  -msse2avx                   Encode SSE instructions with VEX prefix.
+  -msse3                      Support MMX, SSE, SSE2 and SSE3 built-in
+                              functions and code generation.
+  -msse4                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4.1                    Support MMX, SSE, SSE2, SSE3, SSSE3 and SSE4.1
+                              built-in functions and code generation.
+  -msse4.2                    Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4a                     Support MMX, SSE, SSE2, SSE3 and SSE4A built-in
+                              functions and code generation.
+  -msse5                      Same as -mavx.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -msseregparm                Use SSE register passing conventions for SF and
+                              DF mode.
+  -mssse3                     Support MMX, SSE, SSE2, SSE3 and SSSE3 built-in
+                              functions and code generation.
+  -mstack-arg-probe           Enable stack probing.
+  -mstack-protector-guard-offset= Use the given offset for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard-reg= Use the given base register for addressing the
+                              stack-protector guard.
+  -mstack-protector-guard-symbol= Use the given symbol for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard=    Use given stack-protector guard.
+  -mstackrealign              Realign stack in prologue.
+  -mstringop-strategy=        Chose strategy to generate stringop using.
+  -mstv                       Disable Scalar to Vector optimization pass
+                              transforming 64-bit integer computations into a
+                              vector ones.
+  -mtbm                       Support TBM built-in functions and code
+                              generation.
+  -mthreads                   Use Mingw-specific thread support.
+  -mtls-dialect=              Use given thread-local storage dialect.
+  -mtls-direct-seg-refs       Use direct references against %gs when accessing
+                              tls data.
+  -mtune-ctrl=                Fine grain control of tune features.
+  -mtune=                     Schedule code for given CPU.
+  -municode                   Use unicode startup and define UNICODE macro.
+  -mvaes                      Support VAES built-in functions and code
+                              generation.
+  -mveclibabi=                Vector library ABI to use.
+  -mvect8-ret-in-mem          Return 8-byte vectors in memory.
+  -mvpclmulqdq                Support VPCLMULQDQ built-in functions and code
+                              generation.
+  -mvzeroupper                Generate vzeroupper instruction before a transfer
+                              of control flow out of the function.
+  -mwbnoinvd                  Support WBNOINVD built-in functions and code
+                              generation.
+  -mwin32                     Set Windows defines.
+  -mwindows                   Create GUI application.
+  -mx32                       Generate 32bit x86-64 code.
+  -mxop                       Support XOP built-in functions and code
+                              generation.
+  -mxsave                     Support XSAVE and XRSTOR instructions.
+  -mxsavec                    Support XSAVEC instructions.
+  -mxsaveopt                  Support XSAVEOPT instruction.
+  -mxsaves                    Support XSAVES and XRSTORS instructions.
+
+  Known assembler dialects (for use with the -masm= option):
+    att intel
+
+  Known ABIs (for use with the -mabi= option):
+    ms sysv
+
+  Known code models (for use with the -mcmodel= option):
+    32 kernel large medium small
+
+  Valid arguments to -mfpmath=:
+    387 387+sse 387,sse both sse sse+387 sse,387
+
+  Known indirect branch choices (for use with the -mindirect-branch=/-mfunction-return= options):
+    keep thunk thunk-extern thunk-inline
+
+  Known data alignment choices (for use with the -malign-data= option):
+    abi cacheline compat
+
+  Known vectorization library ABIs (for use with the -mveclibabi= option):
+    acml svml
+
+  Known address mode (for use with the -maddress-mode= option):
+    long short
+
+  Known preferred register vector length (to use with the -mprefer-vector-width= option)
+    128 256 512 none
+
+  Known stack protector guard (for use with the -mstack-protector-guard= option):
+    global tls
+
+  Valid arguments to -mstringop-strategy=:
+    byte_loop libcall loop rep_4byte rep_8byte rep_byte unrolled_loop
+    vector_loop
+
+  Known TLS dialects (for use with the -mtls-dialect= option):
+    gnu gnu2
+
+The following options are target specific:
+  -m128bit-long-double        sizeof(long double) is 16.
+  -m16                        Generate 16bit i386 code.
+  -m32                        Generate 32bit i386 code.
+  -m3dnow                     Support 3DNow! built-in functions.
+  -m3dnowa                    Support Athlon 3Dnow! built-in functions.
+  -m64                        Generate 64bit x86-64 code.
+  -m80387                     Use hardware fp.
+  -m8bit-idiv                 Expand 32bit/64bit integer divide into 8bit
+                              unsigned integer divide with run-time check.
+  -m96bit-long-double         sizeof(long double) is 12.
+  -mabi=                      Generate code that conforms to the given ABI.
+  -mabm                       Support code generation of Advanced Bit
+                              Manipulation (ABM) instructions.
+  -maccumulate-outgoing-args  Reserve space for outgoing arguments in the
+                              function prologue.
+  -maddress-mode=             Use given address mode.
+  -madx                       Support flag-preserving add-carry instructions.
+  -maes                       Support AES built-in functions and code
+                              generation.
+  -malign-data=               Use the given data alignment.
+  -malign-double              Align some doubles on dword boundary.
+  -malign-functions=          Function starts are aligned to this power of 2.
+  -malign-jumps=              Jump targets are aligned to this power of 2.
+  -malign-loops=              Loop code aligned to this power of 2.
+  -malign-stringops           Align destination of the string operations.
+  -march=                     Generate code for given CPU.
+  -masm=                      Use given assembler dialect.
+  -mavx                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2 and AVX built-in functions and code
+                              generation.
+  -mavx2                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and AVX2 built-in functions and code
+                              generation.
+  -mavx256-split-unaligned-load Split 32-byte AVX unaligned load.
+  -mavx256-split-unaligned-store Split 32-byte AVX unaligned store.
+  -mavx5124fmaps              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124FMAPS built-
+                              in functions and code generation.
+  -mavx5124vnniw              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124VNNIW built-
+                              in functions and code generation.
+  -mavx512bitalg              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512BITALG built-
+                              in functions and code generation.
+  -mavx512bw                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512BW built-
+                              in functions and code generation.
+  -mavx512cd                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512CD built-
+                              in functions and code generation.
+  -mavx512dq                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512DQ built-
+                              in functions and code generation.
+  -mavx512er                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512ER built-
+                              in functions and code generation.
+  -mavx512f                   Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F built-in functions
+                              and code generation.
+  -mavx512ifma                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512IFMA
+                              built-in functions and code generation.
+  -mavx512pf                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512PF built-
+                              in functions and code generation.
+  -mavx512vbmi                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VBMI
+                              built-in functions and code generation.
+  -mavx512vbmi2               Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VBMI2 built-
+                              in functions and code generation.
+  -mavx512vl                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VL built-
+                              in functions and code generation.
+  -mavx512vnni                Support AVX512VNNI built-in functions and code
+                              generation.
+  -mavx512vpopcntdq           Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VPOPCNTDQ
+                              built-in functions and code generation.
+  -mbmi                       Support BMI built-in functions and code
+                              generation.
+  -mbmi2                      Support BMI2 built-in functions and code
+                              generation.
+  -mbranch-cost=<0,5>         Branches are this expensive (arbitrary units).
+  -mcall-ms2sysv-xlogues      Use libgcc stubs to save and restore registers
+                              clobbered by 64-bit Microsoft to System V ABI
+                              calls.
+  -mcet-switch                Turn on CET instrumentation for switch statements
+                              that use a jump table and an indirect jump.
+  -mcld                       Generate cld instruction in the function prologue.
+  -mclflushopt                Support CLFLUSHOPT instructions.
+  -mclwb                      Support CLWB instruction.
+  -mclzero                    Support CLZERO built-in functions and code
+                              generation.
+  -mcmodel=                   Use given x86-64 code model.
+  -mconsole                   Create console application.
+  -mcpu=                      Same as -mtune=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mcrc32                     Support code generation of crc32 instruction.
+  -mcx16                      Support code generation of cmpxchg16b instruction.
+  -mdispatch-scheduler        Do dispatch scheduling if processor is bdver1,
+                              bdver2, bdver3, bdver4 or znver1 and Haifa
+                              scheduling is selected.
+  -mdll                       Generate code for a DLL.
+  -mdump-tune-features        This option lacks documentation.
+  -mf16c                      Support F16C built-in functions and code
+                              generation.
+  -mfancy-math-387            Generate sin, cos, sqrt for FPU.
+  -mfentry                    Emit profiling counter call at function entry
+                              before prologue.
+  -mfma                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and FMA built-in functions and code
+                              generation.
+  -mfma4                      Support FMA4 built-in functions and code
+                              generation.
+  -mforce-drap                Always use Dynamic Realigned Argument Pointer
+                              (DRAP) to realign stack.
+  -mforce-indirect-call       Make all function calls indirect.
+  -mfp-ret-in-387             Return values of functions in FPU registers.
+  -mfpmath=                   Generate floating point mathematics using given
+                              instruction set.
+  -mfsgsbase                  Support FSGSBASE built-in functions and code
+                              generation.
+  -mfunction-return=          Convert function return to call and return thunk.
+  -mfused-madd                Same as -ffp-contract=.  Use the latter option
+                              instead.  Uses of this option are diagnosed.
+  -mfxsr                      Support FXSAVE and FXRSTOR instructions.
+  -mgeneral-regs-only         Generate code which uses only the general
+                              registers.
+  -mgfni                      Support GFNI built-in functions and code
+                              generation.
+  -mhard-float                Use hardware fp.
+  -mhle                       Support Hardware Lock Elision prefixes.
+  -miamcu                     Generate code that conforms to Intel MCU psABI.
+  -mieee-fp                   Use IEEE math for fp comparisons.
+  -mincoming-stack-boundary=  Assume incoming stack aligned to this power of 2.
+  -mindirect-branch-register  Force indirect call and jump via register.
+  -mindirect-branch=          Convert indirect call and jump to call and return
+                              thunks.
+  -minline-all-stringops      Inline all known string operations.
+  -minline-stringops-dynamically Inline memset/memcpy string operations, but
+                              perform inline version only for small blocks.
+  -mintel-syntax              Same as -masm=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mlarge-data-threshold=<number> Data greater than given threshold will go
+                              into .ldata section in x86-64 medium model.
+  -mlong-double-128           Use 128-bit long double.
+  -mlong-double-64            Use 64-bit long double.
+  -mlong-double-80            Use 80-bit long double.
+  -mlwp                       Support LWP built-in functions and code
+                              generation.
+  -mlzcnt                     Support LZCNT built-in function and code
+                              generation.
+  -mmemcpy-strategy=          Specify memcpy expansion strategy when expected
+                              size is known.
+  -mmemset-strategy=          Specify memset expansion strategy when expected
+                              size is known.
+  -mmitigate-rop              Attempt to avoid generating instruction sequences
+                              containing ret bytes.
+  -mmmx                       Support MMX built-in functions.
+  -mmovbe                     Support code generation of movbe instruction.
+  -mmovdir64b                 Support MOVDIR64B built-in functions and code
+                              generation.
+  -mmovdiri                   Support MOVDIRI built-in functions and code
+                              generation.
+  -mmpx                       Support MPX code generation.
+  -mms-bitfields              Use native (MS) bitfield layout.
+  -mmwaitx                    Support MWAITX and MONITORX built-in functions
+                              and code generation.
+  -mno-align-stringops        This option lacks documentation.
+  -mno-default                Clear all tune features.
+  -mno-fancy-math-387         This option lacks documentation.
+  -mno-push-args              This option lacks documentation.
+  -mno-red-zone               This option lacks documentation.
+  -mno-sse4                   Do not support SSE4.1 and SSE4.2 built-in
+                              functions and code generation.
+  -mnop-fun-dllimport         Ignore dllimport for functions.
+  -mnop-mcount                Generate mcount/__fentry__ calls as nops. To
+                              activate they need to be patched in.
+  -momit-leaf-frame-pointer   Omit the frame pointer in leaf functions.
+  -mpc32                      Set 80387 floating-point precision to 32-bit.
+  -mpc64                      Set 80387 floating-point precision to 64-bit.
+  -mpc80                      Set 80387 floating-point precision to 80-bit.
+  -mpclmul                    Support PCLMUL built-in functions and code
+                              generation.
+  -mpcommit                   This option lacks documentation.  Uses of this
+                              option are diagnosed.
+  -mpconfig                   Support PCONFIG built-in functions and code
+                              generation.
+  -mpe-aligned-commons        Use the GNU extension to the PE format for
+                              aligned common data.
+  -mpku                       Support PKU built-in functions and code
+                              generation.
+  -mpopcnt                    Support code generation of popcnt instruction.
+  -mprefer-avx128             Use 128-bit AVX instructions instead of 256-bit
+                              AVX instructions in the auto-vectorizer.  Same as
+                              -mprefer-vector-width=.
+  -mprefer-vector-width=      Use given register vector width instructions
+                              instead of maximum register width in the auto-
+                              vectorizer.
+  -mpreferred-stack-boundary= Attempt to keep stack aligned to this power of 2.
+  -mprefetchwt1               Support PREFETCHWT1 built-in functions and code
+                              generation.
+  -mprfchw                    Support PREFETCHW instruction.
+  -mpush-args                 Use push instructions to save outgoing arguments.
+  -mrdpid                     Support RDPID built-in functions and code
+                              generation.
+  -mrdrnd                     Support RDRND built-in functions and code
+                              generation.
+  -mrdseed                    Support RDSEED instruction.
+  -mrecip                     Generate reciprocals instead of divss and sqrtss.
+  -mrecip=                    Control generation of reciprocal estimates.
+  -mrecord-mcount             Generate __mcount_loc section with all mcount or
+                              __fentry__ calls.
+  -mred-zone                  Use red-zone in the x86-64 code.
+  -mregparm=                  Number of registers used to pass integer
+                              arguments.
+  -mrtd                       Alternate calling convention.
+  -mrtm                       Support RTM built-in functions and code
+                              generation.
+  -msahf                      Support code generation of sahf instruction in
+                              64bit x86-64 code.
+  -msgx                       Support SGX built-in functions and code
+                              generation.
+  -msha                       Support SHA1 and SHA256 built-in functions and
+                              code generation.
+  -mshstk                     Enable shadow stack built-in functions from
+                              Control-flow Enforcement Technology (CET).
+  -mskip-rax-setup            Skip setting up RAX register when passing
+                              variable arguments.
+  -msoft-float                Do not use hardware fp.
+  -msse                       Support MMX and SSE built-in functions and code
+                              generation.
+  -msse2                      Support MMX, SSE and SSE2 built-in functions and
+                              code generation.
+  -msse2avx                   Encode SSE instructions with VEX prefix.
+  -msse3                      Support MMX, SSE, SSE2 and SSE3 built-in
+                              functions and code generation.
+  -msse4                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4.1                    Support MMX, SSE, SSE2, SSE3, SSSE3 and SSE4.1
+                              built-in functions and code generation.
+  -msse4.2                    Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4a                     Support MMX, SSE, SSE2, SSE3 and SSE4A built-in
+                              functions and code generation.
+  -msse5                      Same as -mavx.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -msseregparm                Use SSE register passing conventions for SF and
+                              DF mode.
+  -mssse3                     Support MMX, SSE, SSE2, SSE3 and SSSE3 built-in
+                              functions and code generation.
+  -mstack-arg-probe           Enable stack probing.
+  -mstack-protector-guard-offset= Use the given offset for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard-reg= Use the given base register for addressing the
+                              stack-protector guard.
+  -mstack-protector-guard-symbol= Use the given symbol for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard=    Use given stack-protector guard.
+  -mstackrealign              Realign stack in prologue.
+  -mstringop-strategy=        Chose strategy to generate stringop using.
+  -mstv                       Disable Scalar to Vector optimization pass
+                              transforming 64-bit integer computations into a
+                              vector ones.
+  -mtbm                       Support TBM built-in functions and code
+                              generation.
+  -mthreads                   Use Mingw-specific thread support.
+  -mtls-dialect=              Use given thread-local storage dialect.
+  -mtls-direct-seg-refs       Use direct references against %gs when accessing
+                              tls data.
+  -mtune-ctrl=                Fine grain control of tune features.
+  -mtune=                     Schedule code for given CPU.
+  -municode                   Use unicode startup and define UNICODE macro.
+  -mvaes                      Support VAES built-in functions and code
+                              generation.
+  -mveclibabi=                Vector library ABI to use.
+  -mvect8-ret-in-mem          Return 8-byte vectors in memory.
+  -mvpclmulqdq                Support VPCLMULQDQ built-in functions and code
+                              generation.
+  -mvzeroupper                Generate vzeroupper instruction before a transfer
+                              of control flow out of the function.
+  -mwbnoinvd                  Support WBNOINVD built-in functions and code
+                              generation.
+  -mwin32                     Set Windows defines.
+  -mwindows                   Create GUI application.
+  -mx32                       Generate 32bit x86-64 code.
+  -mxop                       Support XOP built-in functions and code
+                              generation.
+  -mxsave                     Support XSAVE and XRSTOR instructions.
+  -mxsavec                    Support XSAVEC instructions.
+  -mxsaveopt                  Support XSAVEOPT instruction.
+  -mxsaves                    Support XSAVES and XRSTORS instructions.
+
+  Known assembler dialects (for use with the -masm= option):
+    att intel
+
+  Known ABIs (for use with the -mabi= option):
+    ms sysv
+
+  Known code models (for use with the -mcmodel= option):
+    32 kernel large medium small
+
+  Valid arguments to -mfpmath=:
+    387 387+sse 387,sse both sse sse+387 sse,387
+
+  Known indirect branch choices (for use with the -mindirect-branch=/-mfunction-return= options):
+    keep thunk thunk-extern thunk-inline
+
+  Known data alignment choices (for use with the -malign-data= option):
+    abi cacheline compat
+
+  Known vectorization library ABIs (for use with the -mveclibabi= option):
+    acml svml
+
+  Known address mode (for use with the -maddress-mode= option):
+    long short
+
+  Known preferred register vector length (to use with the -mprefer-vector-width= option)
+    128 256 512 none
+
+  Known stack protector guard (for use with the -mstack-protector-guard= option):
+    global tls
+
+  Valid arguments to -mstringop-strategy=:
+    byte_loop libcall loop rep_4byte rep_8byte rep_byte unrolled_loop
+    vector_loop
+
+  Known TLS dialects (for use with the -mtls-dialect= option):
+    gnu gnu2
+
+The following options are target specific:
+  -m128bit-long-double        sizeof(long double) is 16.
+  -m16                        Generate 16bit i386 code.
+  -m32                        Generate 32bit i386 code.
+  -m3dnow                     Support 3DNow! built-in functions.
+  -m3dnowa                    Support Athlon 3Dnow! built-in functions.
+  -m64                        Generate 64bit x86-64 code.
+  -m80387                     Use hardware fp.
+  -m8bit-idiv                 Expand 32bit/64bit integer divide into 8bit
+                              unsigned integer divide with run-time check.
+  -m96bit-long-double         sizeof(long double) is 12.
+  -mabi=                      Generate code that conforms to the given ABI.
+  -mabm                       Support code generation of Advanced Bit
+                              Manipulation (ABM) instructions.
+  -maccumulate-outgoing-args  Reserve space for outgoing arguments in the
+                              function prologue.
+  -maddress-mode=             Use given address mode.
+  -madx                       Support flag-preserving add-carry instructions.
+  -maes                       Support AES built-in functions and code
+                              generation.
+  -malign-data=               Use the given data alignment.
+  -malign-double              Align some doubles on dword boundary.
+  -malign-functions=          Function starts are aligned to this power of 2.
+  -malign-jumps=              Jump targets are aligned to this power of 2.
+  -malign-loops=              Loop code aligned to this power of 2.
+  -malign-stringops           Align destination of the string operations.
+  -march=                     Generate code for given CPU.
+  -masm=                      Use given assembler dialect.
+  -mavx                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2 and AVX built-in functions and code
+                              generation.
+  -mavx2                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and AVX2 built-in functions and code
+                              generation.
+  -mavx256-split-unaligned-load Split 32-byte AVX unaligned load.
+  -mavx256-split-unaligned-store Split 32-byte AVX unaligned store.
+  -mavx5124fmaps              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124FMAPS built-
+                              in functions and code generation.
+  -mavx5124vnniw              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX5124VNNIW built-
+                              in functions and code generation.
+  -mavx512bitalg              Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512BITALG built-
+                              in functions and code generation.
+  -mavx512bw                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512BW built-
+                              in functions and code generation.
+  -mavx512cd                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512CD built-
+                              in functions and code generation.
+  -mavx512dq                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512DQ built-
+                              in functions and code generation.
+  -mavx512er                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512ER built-
+                              in functions and code generation.
+  -mavx512f                   Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F built-in functions
+                              and code generation.
+  -mavx512ifma                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512IFMA
+                              built-in functions and code generation.
+  -mavx512pf                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512PF built-
+                              in functions and code generation.
+  -mavx512vbmi                Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VBMI
+                              built-in functions and code generation.
+  -mavx512vbmi2               Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VBMI2 built-
+                              in functions and code generation.
+  -mavx512vl                  Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2 and AVX512F and AVX512VL built-
+                              in functions and code generation.
+  -mavx512vnni                Support AVX512VNNI built-in functions and code
+                              generation.
+  -mavx512vpopcntdq           Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX, AVX2, AVX512F and AVX512VPOPCNTDQ
+                              built-in functions and code generation.
+  -mbmi                       Support BMI built-in functions and code
+                              generation.
+  -mbmi2                      Support BMI2 built-in functions and code
+                              generation.
+  -mbranch-cost=<0,5>         Branches are this expensive (arbitrary units).
+  -mcall-ms2sysv-xlogues      Use libgcc stubs to save and restore registers
+                              clobbered by 64-bit Microsoft to System V ABI
+                              calls.
+  -mcet-switch                Turn on CET instrumentation for switch statements
+                              that use a jump table and an indirect jump.
+  -mcld                       Generate cld instruction in the function prologue.
+  -mclflushopt                Support CLFLUSHOPT instructions.
+  -mclwb                      Support CLWB instruction.
+  -mclzero                    Support CLZERO built-in functions and code
+                              generation.
+  -mcmodel=                   Use given x86-64 code model.
+  -mconsole                   Create console application.
+  -mcpu=                      Same as -mtune=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mcrc32                     Support code generation of crc32 instruction.
+  -mcx16                      Support code generation of cmpxchg16b instruction.
+  -mdispatch-scheduler        Do dispatch scheduling if processor is bdver1,
+                              bdver2, bdver3, bdver4 or znver1 and Haifa
+                              scheduling is selected.
+  -mdll                       Generate code for a DLL.
+  -mdump-tune-features        This option lacks documentation.
+  -mf16c                      Support F16C built-in functions and code
+                              generation.
+  -mfancy-math-387            Generate sin, cos, sqrt for FPU.
+  -mfentry                    Emit profiling counter call at function entry
+                              before prologue.
+  -mfma                       Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+                              SSE4.2, AVX and FMA built-in functions and code
+                              generation.
+  -mfma4                      Support FMA4 built-in functions and code
+                              generation.
+  -mforce-drap                Always use Dynamic Realigned Argument Pointer
+                              (DRAP) to realign stack.
+  -mforce-indirect-call       Make all function calls indirect.
+  -mfp-ret-in-387             Return values of functions in FPU registers.
+  -mfpmath=                   Generate floating point mathematics using given
+                              instruction set.
+  -mfsgsbase                  Support FSGSBASE built-in functions and code
+                              generation.
+  -mfunction-return=          Convert function return to call and return thunk.
+  -mfused-madd                Same as -ffp-contract=.  Use the latter option
+                              instead.  Uses of this option are diagnosed.
+  -mfxsr                      Support FXSAVE and FXRSTOR instructions.
+  -mgeneral-regs-only         Generate code which uses only the general
+                              registers.
+  -mgfni                      Support GFNI built-in functions and code
+                              generation.
+  -mhard-float                Use hardware fp.
+  -mhle                       Support Hardware Lock Elision prefixes.
+  -miamcu                     Generate code that conforms to Intel MCU psABI.
+  -mieee-fp                   Use IEEE math for fp comparisons.
+  -mincoming-stack-boundary=  Assume incoming stack aligned to this power of 2.
+  -mindirect-branch-register  Force indirect call and jump via register.
+  -mindirect-branch=          Convert indirect call and jump to call and return
+                              thunks.
+  -minline-all-stringops      Inline all known string operations.
+  -minline-stringops-dynamically Inline memset/memcpy string operations, but
+                              perform inline version only for small blocks.
+  -mintel-syntax              Same as -masm=.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -mlarge-data-threshold=<number> Data greater than given threshold will go
+                              into .ldata section in x86-64 medium model.
+  -mlong-double-128           Use 128-bit long double.
+  -mlong-double-64            Use 64-bit long double.
+  -mlong-double-80            Use 80-bit long double.
+  -mlwp                       Support LWP built-in functions and code
+                              generation.
+  -mlzcnt                     Support LZCNT built-in function and code
+                              generation.
+  -mmemcpy-strategy=          Specify memcpy expansion strategy when expected
+                              size is known.
+  -mmemset-strategy=          Specify memset expansion strategy when expected
+                              size is known.
+  -mmitigate-rop              Attempt to avoid generating instruction sequences
+                              containing ret bytes.
+  -mmmx                       Support MMX built-in functions.
+  -mmovbe                     Support code generation of movbe instruction.
+  -mmovdir64b                 Support MOVDIR64B built-in functions and code
+                              generation.
+  -mmovdiri                   Support MOVDIRI built-in functions and code
+                              generation.
+  -mmpx                       Support MPX code generation.
+  -mms-bitfields              Use native (MS) bitfield layout.
+  -mmwaitx                    Support MWAITX and MONITORX built-in functions
+                              and code generation.
+  -mno-align-stringops        This option lacks documentation.
+  -mno-default                Clear all tune features.
+  -mno-fancy-math-387         This option lacks documentation.
+  -mno-push-args              This option lacks documentation.
+  -mno-red-zone               This option lacks documentation.
+  -mno-sse4                   Do not support SSE4.1 and SSE4.2 built-in
+                              functions and code generation.
+  -mnop-fun-dllimport         Ignore dllimport for functions.
+  -mnop-mcount                Generate mcount/__fentry__ calls as nops. To
+                              activate they need to be patched in.
+  -momit-leaf-frame-pointer   Omit the frame pointer in leaf functions.
+  -mpc32                      Set 80387 floating-point precision to 32-bit.
+  -mpc64                      Set 80387 floating-point precision to 64-bit.
+  -mpc80                      Set 80387 floating-point precision to 80-bit.
+  -mpclmul                    Support PCLMUL built-in functions and code
+                              generation.
+  -mpcommit                   This option lacks documentation.  Uses of this
+                              option are diagnosed.
+  -mpconfig                   Support PCONFIG built-in functions and code
+                              generation.
+  -mpe-aligned-commons        Use the GNU extension to the PE format for
+                              aligned common data.
+  -mpku                       Support PKU built-in functions and code
+                              generation.
+  -mpopcnt                    Support code generation of popcnt instruction.
+  -mprefer-avx128             Use 128-bit AVX instructions instead of 256-bit
+                              AVX instructions in the auto-vectorizer.  Same as
+                              -mprefer-vector-width=.
+  -mprefer-vector-width=      Use given register vector width instructions
+                              instead of maximum register width in the auto-
+                              vectorizer.
+  -mpreferred-stack-boundary= Attempt to keep stack aligned to this power of 2.
+  -mprefetchwt1               Support PREFETCHWT1 built-in functions and code
+                              generation.
+  -mprfchw                    Support PREFETCHW instruction.
+  -mpush-args                 Use push instructions to save outgoing arguments.
+  -mrdpid                     Support RDPID built-in functions and code
+                              generation.
+  -mrdrnd                     Support RDRND built-in functions and code
+                              generation.
+  -mrdseed                    Support RDSEED instruction.
+  -mrecip                     Generate reciprocals instead of divss and sqrtss.
+  -mrecip=                    Control generation of reciprocal estimates.
+  -mrecord-mcount             Generate __mcount_loc section with all mcount or
+                              __fentry__ calls.
+  -mred-zone                  Use red-zone in the x86-64 code.
+  -mregparm=                  Number of registers used to pass integer
+                              arguments.
+  -mrtd                       Alternate calling convention.
+  -mrtm                       Support RTM built-in functions and code
+                              generation.
+  -msahf                      Support code generation of sahf instruction in
+                              64bit x86-64 code.
+  -msgx                       Support SGX built-in functions and code
+                              generation.
+  -msha                       Support SHA1 and SHA256 built-in functions and
+                              code generation.
+  -mshstk                     Enable shadow stack built-in functions from
+                              Control-flow Enforcement Technology (CET).
+  -mskip-rax-setup            Skip setting up RAX register when passing
+                              variable arguments.
+  -msoft-float                Do not use hardware fp.
+  -msse                       Support MMX and SSE built-in functions and code
+                              generation.
+  -msse2                      Support MMX, SSE and SSE2 built-in functions and
+                              code generation.
+  -msse2avx                   Encode SSE instructions with VEX prefix.
+  -msse3                      Support MMX, SSE, SSE2 and SSE3 built-in
+                              functions and code generation.
+  -msse4                      Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4.1                    Support MMX, SSE, SSE2, SSE3, SSSE3 and SSE4.1
+                              built-in functions and code generation.
+  -msse4.2                    Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1 and
+                              SSE4.2 built-in functions and code generation.
+  -msse4a                     Support MMX, SSE, SSE2, SSE3 and SSE4A built-in
+                              functions and code generation.
+  -msse5                      Same as -mavx.  Use the latter option instead. 
+                              Uses of this option are diagnosed.
+  -msseregparm                Use SSE register passing conventions for SF and
+                              DF mode.
+  -mssse3                     Support MMX, SSE, SSE2, SSE3 and SSSE3 built-in
+                              functions and code generation.
+  -mstack-arg-probe           Enable stack probing.
+  -mstack-protector-guard-offset= Use the given offset for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard-reg= Use the given base register for addressing the
+                              stack-protector guard.
+  -mstack-protector-guard-symbol= Use the given symbol for addressing the stack-
+                              protector guard.
+  -mstack-protector-guard=    Use given stack-protector guard.
+  -mstackrealign              Realign stack in prologue.
+  -mstringop-strategy=        Chose strategy to generate stringop using.
+  -mstv                       Disable Scalar to Vector optimization pass
+                              transforming 64-bit integer computations into a
+                              vector ones.
+  -mtbm                       Support TBM built-in functions and code
+                              generation.
+  -mthreads                   Use Mingw-specific thread support.
+  -mtls-dialect=              Use given thread-local storage dialect.
+  -mtls-direct-seg-refs       Use direct references against %gs when accessing
+                              tls data.
+  -mtune-ctrl=                Fine grain control of tune features.
+  -mtune=                     Schedule code for given CPU.
+  -municode                   Use unicode startup and define UNICODE macro.
+  -mvaes                      Support VAES built-in functions and code
+                              generation.
+  -mveclibabi=                Vector library ABI to use.
+  -mvect8-ret-in-mem          Return 8-byte vectors in memory.
+  -mvpclmulqdq                Support VPCLMULQDQ built-in functions and code
+                              generation.
+  -mvzeroupper                Generate vzeroupper instruction before a transfer
+                              of control flow out of the function.
+  -mwbnoinvd                  Support WBNOINVD built-in functions and code
+                              generation.
+  -mwin32                     Set Windows defines.
+  -mwindows                   Create GUI application.
+  -mx32                       Generate 32bit x86-64 code.
+  -mxop                       Support XOP built-in functions and code
+                              generation.
+  -mxsave                     Support XSAVE and XRSTOR instructions.
+  -mxsavec                    Support XSAVEC instructions.
+  -mxsaveopt                  Support XSAVEOPT instruction.
+  -mxsaves                    Support XSAVES and XRSTORS instructions.
+
+  Known assembler dialects (for use with the -masm= option):
+    att intel
+
+  Known ABIs (for use with the -mabi= option):
+    ms sysv
+
+  Known code models (for use with the -mcmodel= option):
+    32 kernel large medium small
+
+  Valid arguments to -mfpmath=:
+    387 387+sse 387,sse both sse sse+387 sse,387
+
+  Known indirect branch choices (for use with the -mindirect-branch=/-mfunction-return= options):
+    keep thunk thunk-extern thunk-inline
+
+  Known data alignment choices (for use with the -malign-data= option):
+    abi cacheline compat
+
+  Known vectorization library ABIs (for use with the -mveclibabi= option):
+    acml svml
+
+  Known address mode (for use with the -maddress-mode= option):
+    long short
+
+  Known preferred register vector length (to use with the -mprefer-vector-width= option)
+    128 256 512 none
+
+  Known stack protector guard (for use with the -mstack-protector-guard= option):
+    global tls
+
+  Valid arguments to -mstringop-strategy=:
+    byte_loop libcall loop rep_4byte rep_8byte rep_byte unrolled_loop
+    vector_loop
+
+  Known TLS dialects (for use with the -mtls-dialect= option):
+    gnu gnu2
+

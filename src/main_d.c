@@ -438,10 +438,30 @@ LRESULT CALLBACK WndProc ( HWND hWnd, UINT uMsg, WPARAM wParam,
   return DefWindowProc ( hWnd, uMsg, wParam, lParam );
 }
 
+#include <intrin.h>
+
+  volatile __m128d p[4];
+  volatile double dd[16] = { };
 
 INT APIENTRY wWinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         LPWSTR lpCmdLine, INT nShowCmd )
 {
+
+  dd[1] = 1.0;
+  dd[2] = 2.0;
+  dd[3] = 3.0;
+  dd[4] = 4.0;
+  dd[5] = 5.0;
+  dd[6] = 6.0;
+
+  p[0] = _mm_loadu_pd(dd);
+  p[1] = _mm_load_pd(dd);
+  p[2] = _mm_loadu_pd((double*)(((PBYTE)dd)+3));
+  p[3] = _mm_load_pd((double*)(((PBYTE)dd)+3));
+
+  _mm_store_pd(dd,_mm_add_pd(p[0],p[2]));
+  _mm_store_pd(dd+3,_mm_add_pd(p[1],p[3]));
+
   g_hInstance = hInstance;
   {
     WNDCLASSEX wc = {

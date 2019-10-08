@@ -1,0 +1,5 @@
+start main.exe -f="_data1.bin"
+start main.exe -f="_data2.bin"
+start main.exe -f="_data3.bin"
+start main.exe -f="_data4.bin"
+start main.exe -f="_data5.bin"

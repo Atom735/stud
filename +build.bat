@@ -1,2 +1,2 @@
-rem "mingw32-make.exe"
-"+build_cmd.bat"
+"mingw32-make.exe"
+rem "+build_cmd.bat"
