@@ -1,5 +1,5 @@
 szPathToData            = 'C:\ARGilyazeev\github\stud\data\';
-[fdData, err]           = mopen ( szPathToData + 'orig_0.bin' );
+[fdData, err]           = mopen ( szPathToData + 'original.bin' );
 kI_Magic                = mget( 1, 'ul', fdData );
 kN_FrameCount           = mget( 1, 'u', fdData );
 kN_GridX                = mget( 1, 'u', fdData );
@@ -23,8 +23,9 @@ endfunction
 
 listX = 0:kR_dX:1;
 
-for i = 1:100:1000
-    plot ( listX, rDataLoadFrame(i), "foreground",hsv2rgb(i/1000,1,1));
+gca().background = color(0.3,0.3,0.3);
+for i = 1:100:1500
+    plot ( listX, rDataLoadFrame(i), "foreground",hsv2rgb(i/1500,1,1));
 end;
 
 

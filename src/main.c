@@ -290,13 +290,12 @@ static void rSolution_StepP ( struct solution * const p )
       pR_S [ i ] += kR_dT_dX * ( pR_U [ i-1 ] - pR_U [ i ] );
     }
     FILE * const pF =  p -> pF;
-    fseek ( pF, 0, SEEK_END );
+    fseek ( p -> pF, sizeof ( p -> head ) +
+          ( kN_FrameSz * ( p -> head. kN_FrameCount ) * 2 ) + kN_FrameSz,
+          SEEK_SET );
     fwrite ( pR_P, 1, kN_FrameSz, pF );
     fwrite ( pR_S, 1, kN_FrameSz, pF );
     ++( p -> head. kN_FrameCount );
-    // fseek ( pF, 0, SEEK_SET );
-    // fwrite ( &( p -> head ), 1, sizeof ( p -> head ), pF );
-    // fflush ( pF );
 
     if ( p -> kN_FrameCountMax )
     {
@@ -346,6 +345,7 @@ int main ( int argc, char const *argv[] )
 
   signal ( SIGTERM, rSigTerm );
   signal ( SIGINT, rSigTerm );
+  signal ( SIGBREAK, rSigTerm );
 
 
   if ( argc == 1 )
