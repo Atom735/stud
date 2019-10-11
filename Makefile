@@ -1,6 +1,9 @@
 .PHONY : all
 
-# PATH_GCC := C:\\a\\mingw64\\bin\\
+# ifeq ( $(PROCESSOR_ARCHITECTURE), AMD64 )
+# 	MFLAGS =
+#
+# endif
 
 CC := gcc.exe
 
@@ -13,22 +16,19 @@ CPPFLAGS :=\
 
 CFLAGS :=\
 	-Wall\
-	-O3\
-	-msse2\
-	-m32 -mfpmath=sse -Ofast -flto -march=native -funroll-loops\
+	$(MFLAGS)\
 	-municode\
 # 	-mwindows\
 
 LDFLAGS :=\
 	-Wall\
-	-O3\
-	-msse2\
-	-m32 -mfpmath=sse -Ofast -flto -march=native -funroll-loops\
+	$(MFLAGS)\
   -municode\
 	-lGDI32\
 	-lOpenGL32\
 
 all : main.exe
+	$(MFLAGS)
 	main.exe
 
 main.exe : src/main.c
