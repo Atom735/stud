@@ -8,11 +8,11 @@
 
 #include <intrin.h>
 
-#define D_MAGIC_V_1             0XE35AB12D
+#define D_MAGIC_V_1             0xE35AB12DE35AB12DULL
 
 struct solution_head
 {
-  UINT32                        kI_Magic;
+  UINT64                        kI_Magic;
   UINT32                        kN_FrameCount;
   UINT32                        kN_GridX;
   UINT32                        kN_ItersIdentMin;

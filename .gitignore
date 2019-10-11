@@ -1,4 +1,6 @@
 *.sublime-workspace
+data
+doc
 
 # Prerequisites
 *.d
