@@ -94,6 +94,37 @@ static struct solution * rSolution_New ( )
   return p;
 }
 
+static void rSolution_DbgHeadReWrite ( struct solution * const p )
+{
+  if ( p -> szFileNameTxt )
+  {
+    FILE * const pF = fopen ( p -> szFileNameTxt, "wb" );
+    #define D_print(...) fprintf ( pF, __VA_ARGS__ )
+    D_print ( "kI_Magic             = %016" PRIx64 "\n", p -> head. kI_Magic );
+    D_print ( "kN_FrameCount        = %" PRIu32 "\n", p -> head. kN_FrameCount );
+    D_print ( "kN_GridX             = %" PRIu32 "\n", p -> head. kN_GridX );
+    D_print ( "kN_ItersIdentMin     = %" PRIu32 "\n", p -> head. kN_ItersIdentMin );
+    D_print ( "kN_ItersSkips        = %" PRIu32 "\n", p -> head. kN_ItersSkips );
+    D_print ( "kR_ErrorMax          = %.20f\n", p -> head. kR_ErrorMax );
+    D_print ( "kR_Alpha             = %.20f\n", p -> head. kR_Alpha );
+    D_print ( "kR_K_Mu              = %.20f\n", p -> head. kR_K_Mu );
+    D_print ( "kR_dT                = %.20f\n", p -> head. kR_dT );
+    D_print ( "kR_S_t               = %.20f\n", p -> head. kR_S_t );
+    D_print ( "kR_S_x               = %.20f\n", p -> head. kR_S_x );
+    D_print ( "======================\n" );
+    D_print ( "szFileName           = %s\n", p -> szFileName );
+    D_print ( "kR_dX                = %.20f\n", p -> kR_dX );
+    D_print ( "kR_1_dX              = %.20f\n", p -> kR_1_dX );
+    D_print ( "kR_dT_dX             = %.20f\n", p -> kR_dT_dX );
+    D_print ( "kN_FrameCountMax     = %d\n", p -> kN_FrameCountMax );
+    D_print ( "bReWrite             = %s\n", p -> bReWrite ? "TRUE" : "FALSE" );
+    D_print ( "iPlotN               = %d\n", p -> iPlotN );
+    D_print ( "======================\n" );
+    #undef D_print
+    fclose ( pF );
+  }
+}
+
 static void rSolution_Init ( struct solution * const p )
 {
   const UINT kN_GridX = p -> head. kN_GridX;
@@ -151,40 +182,14 @@ static void rSolution_Init ( struct solution * const p )
     assert ( p -> pR_S [ 0 ] == p -> head. kR_S_t );
   }
 
-  if ( p -> szFileNameTxt )
-  {
-    FILE * const pF = fopen ( p -> szFileNameTxt, "wb" );
-    #define D_print(...) fprintf ( pF, __VA_ARGS__ )
-    D_print ( "kI_Magic             = %016" PRIx64 "\n", p -> head. kI_Magic );
-    D_print ( "kN_FrameCount        = %" PRIu32 "\n", p -> head. kN_FrameCount );
-    D_print ( "kN_GridX             = %" PRIu32 "\n", p -> head. kN_GridX );
-    D_print ( "kN_ItersIdentMin     = %" PRIu32 "\n", p -> head. kN_ItersIdentMin );
-    D_print ( "kN_ItersSkips        = %" PRIu32 "\n", p -> head. kN_ItersSkips );
-    D_print ( "kR_ErrorMax          = %.20f\n", p -> head. kR_ErrorMax );
-    D_print ( "kR_Alpha             = %.20f\n", p -> head. kR_Alpha );
-    D_print ( "kR_K_Mu              = %.20f\n", p -> head. kR_K_Mu );
-    D_print ( "kR_dT                = %.20f\n", p -> head. kR_dT );
-    D_print ( "kR_S_t               = %.20f\n", p -> head. kR_S_t );
-    D_print ( "kR_S_x               = %.20f\n", p -> head. kR_S_x );
-    D_print ( "======================\n" );
-    D_print ( "szFileName           = %s\n", p -> szFileName );
-    D_print ( "kR_dX                = %.20f\n", p -> kR_dX );
-    D_print ( "kR_1_dX              = %.20f\n", p -> kR_1_dX );
-    D_print ( "kR_dT_dX             = %.20f\n", p -> kR_dT_dX );
-    D_print ( "kN_FrameCountMax     = %d\n", p -> kN_FrameCountMax );
-    D_print ( "bReWrite             = %s\n", p -> bReWrite ? "TRUE" : "FALSE" );
-    D_print ( "iPlotN               = %d\n", p -> iPlotN );
-    D_print ( "======================\n" );
-    #undef D_print
-    fclose ( pF );
-  }
-
+  rSolution_DbgHeadReWrite ( p );
 }
 
 static void rSolution_Free ( struct solution * const p )
 {
   fseek ( p -> pF, 0, SEEK_SET );
   fwrite ( &( p -> head ), 1, sizeof ( p -> head ), p -> pF );
+  rSolution_DbgHeadReWrite ( p );
   fclose ( p -> pF );
   _mm_free ( p -> pMemPtr );
   free ( p );
@@ -233,6 +238,7 @@ static void rSolution_StepP ( struct solution * const p )
     {
       goto P_solved;
     }
+    p -> nPIS = 0;
   }
 
   for ( UINT i = 1; i < kN_GridX_1; ++i )
@@ -733,7 +739,7 @@ INT APIENTRY wWinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   g_hInstance = hInstance;
   {
     LPWSTR *szArglist;
-    g_szArgList = (LPSTR*)( szArglist = CommandLineToArgvW ( GetCommandLineW(), &g_nArgs ) );
+    g_szArgList = (LPSTR*)( szArglist = CommandLineToArgvW ( GetCommandLineW ( ), &g_nArgs ) );
     for ( UINT i = 0; i < g_nArgs; ++i )
     {
       LPSTR pSrc = g_szArgList[i];
@@ -744,6 +750,7 @@ INT APIENTRY wWinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         ++pSrc; ++pDst;
       }
       *pSrc = *pDst;
+      printf ( "%s\n", g_szArgList[i] );
     }
   }
 
