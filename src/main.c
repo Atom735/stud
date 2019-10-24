@@ -11,7 +11,7 @@
 #include <GL/wglext.h>
 
 /*
-main -G -S_x 0.1 -txt data/d1.txt data/d1.bin -G -S_x 0.2 -txt data/d2.txt data/d2.bin
+start main -G -new -N 1000 -dT "0.001" -S_t "1.0" -S_x "0.0" -a "3.0" -Err "1e-5" -Km "0.5" -txt "data/_original.txt" "data/_original.bin"
 */
 
 static HINSTANCE                g_hInstance                 = NULL;
@@ -25,7 +25,7 @@ static const LPCTSTR            g_cszClassName = L"WCT: Gilyazeev A.R.";
 static LPSTR                   *g_szArgList                 = NULL;
 static INT                      g_nArgs;
 
-#define D_MAGIC_V_1             UINT64_C(0xE75FB92DEA5243CD)
+#define D_MAGIC_V_1             UINT64_C(0xE75FB92DEA5243CE)
 
 struct solution_head
 {
@@ -63,7 +63,9 @@ struct solution
   double                       *pR_U;
   double                       *pR_1_Sum_Phi;
   double                        fR_P_Err;
-
+  #ifdef DEBUG_VELOCITY
+  double                       *pVel;
+  #endif
   UINT                          nPII;
   UINT                          nPIS;
   BOOL                          bReWrite;
@@ -131,8 +133,14 @@ static void rSolution_Init ( struct solution * const p )
   const UINT kN_FrameSz = sizeof(double) * kN_GridX;
   void _rMalloc ( )
   {
+
     double * const pMemPtr = (double*) _mm_malloc (
-              kN_FrameSz * 6, 8 * sizeof(double) );
+    #ifdef DEBUG_VELOCITY
+              kN_FrameSz * 7,
+    #else
+              kN_FrameSz * 6,
+    #endif
+              8 * sizeof(double) );
 
     p -> pMemPtr                = pMemPtr;
     p -> pR_S                   = pMemPtr + kN_GridX * 0;
@@ -141,6 +149,9 @@ static void rSolution_Init ( struct solution * const p )
     p -> pR_P                   = pMemPtr + kN_GridX * 3;
     p -> pR_U                   = pMemPtr + kN_GridX * 4;
     p -> pR_1_Sum_Phi           = pMemPtr + kN_GridX * 5;
+    #ifdef DEBUG_VELOCITY
+    p -> pVel                   = pMemPtr + kN_GridX * 6;
+    #endif
 
     p -> kR_dX = 1.0 / ( p -> kR_1_dX = ((double)(kN_GridX-1)) );
     p -> kR_dT_dX = p -> head. kR_dT * p -> kR_1_dX;
@@ -155,6 +166,31 @@ static void rSolution_Init ( struct solution * const p )
 
   if ( p -> bReWrite )
   {
+    p -> pF = fopen ( p -> szFileName, "r+b" );
+    if ( p -> pF == NULL ) goto P_newfile;
+    struct solution_head head;
+    fread ( &( head ), 1, sizeof ( p -> head ), p -> pF );
+    if ( head. kI_Magic != D_MAGIC_V_1 )
+    {
+      fclose ( p -> pF );
+      goto P_newfile;
+    }
+
+    if (     head. kN_GridX != p -> head. kN_GridX
+          || head. kN_ItersIdentMin != p -> head. kN_ItersIdentMin
+          || head. kN_ItersSkips != p -> head. kN_ItersSkips
+          || head. kR_Alpha != p -> head. kR_Alpha
+          || head. kR_K_Mu != p -> head. kR_K_Mu
+          || head. kR_dT != p -> head. kR_dT
+          || head. kR_S_t != p -> head. kR_S_t
+          || head. kR_S_x != p -> head. kR_S_x )
+    {
+      fclose ( p -> pF );
+      goto P_newfile;
+    }
+    goto P_solve_continue;
+
+
     P_newfile:
     p -> pF = fopen ( p -> szFileName, "wb" );
     fwrite ( &( p -> head ), 1, sizeof ( p -> head ), p -> pF );
@@ -166,19 +202,40 @@ static void rSolution_Init ( struct solution * const p )
     }
     p -> pR_S [ 0 ] = p -> head. kR_S_t;
     fwrite ( p -> pR_S, 1, kN_FrameSz, p -> pF );
-
   }
   else
   {
     p -> pF = fopen ( p -> szFileName, "r+b" );
     if ( p -> pF == NULL ) goto P_newfile;
+    P_solve_continue:
+    fseek ( p -> pF, 0, SEEK_SET );
     fread ( &( p -> head ), 1, sizeof ( p -> head ), p -> pF );
-    assert ( p -> head. kI_Magic == D_MAGIC_V_1 );
+    if ( p -> head. kI_Magic != D_MAGIC_V_1 )
+    {
+      fclose ( p -> pF );
+      goto P_newfile;
+    }
     _rMalloc ( );
+    if ( p -> head. kN_FrameCount > 1 )
+    {
+      fseek ( p -> pF, sizeof ( p -> head ) +
+            ( kN_FrameSz * 2 + sizeof(double) ) * ( p -> head. kN_FrameCount ) - ( kN_FrameSz + sizeof(double) ),
+            SEEK_SET );
+      fread ( p -> pR_P, 1, kN_FrameSz, p -> pF );
+      for ( UINT i = 0; i < 10; ++i )
+      {
+        printf ( "pR_P [ %d ] %lf\n", i, p -> pR_P [ i ] );
+      }
+      printf ( "pR_P [ 0 ] %lf\n", p -> pR_P [ 0 ] );
+      printf ( "pR_P [ 1 ]  %lf\n", p -> pR_S [ kN_GridX - 1  ] );
+      assert ( p -> pR_P [ 0 ] == 1.0 );
+      assert ( p -> pR_P [ kN_GridX - 1 ] == 0.0 );
+    }
     fseek ( p -> pF, sizeof ( p -> head ) +
-          ( kN_FrameSz * ( p -> head. kN_FrameCount ) * 2 ),
+          ( ( kN_FrameSz * 2 + sizeof(double) ) * ( p -> head. kN_FrameCount )  ),
           SEEK_SET );
     fread ( p -> pR_S, 1, kN_FrameSz, p -> pF );
+    printf ( "%lf %lf\n", p -> pR_S [ 0 ], p -> head. kR_S_t );
     assert ( p -> pR_S [ 0 ] == p -> head. kR_S_t );
   }
 
@@ -291,9 +348,24 @@ static void rSolution_StepP ( struct solution * const p )
     }
     FILE * const pF =  p -> pF;
     fseek ( p -> pF, sizeof ( p -> head ) +
-          ( kN_FrameSz * ( p -> head. kN_FrameCount ) * 2 ) + kN_FrameSz,
+          ( ( kN_FrameSz * 2 + sizeof(double) ) * ( p -> head. kN_FrameCount ) ) + kN_FrameSz,
           SEEK_SET );
+
+    double pR_Vel [ kN_GridX_1 ];
+    double fR_Vel = 0.0;
+    for ( UINT i = 0; i < kN_GridX_1; ++i )
+    {
+      #ifdef DEBUG_VELOCITY
+      fR_Vel += ( pR_Vel [ i ] = p -> pVel [ i ] = kR_1_dX * pR_Phi [ i ] * ( pR_P [ i ] - pR_P [ i+1 ] ) );
+      #else
+      fR_Vel += ( pR_Vel [ i ] = kR_1_dX * pR_Phi [ i ] * ( pR_P [ i ] - pR_P [ i+1 ] ) );
+      #endif
+    }
+    fR_Vel /= kN_GridX_1;
+
+
     fwrite ( pR_P, 1, kN_FrameSz, pF );
+    fwrite ( &fR_Vel, 1, sizeof(double), pF );
     fwrite ( pR_S, 1, kN_FrameSz, pF );
     ++( p -> head. kN_FrameCount );
 
@@ -703,7 +775,11 @@ static VOID rOnIdle ( )
           {
             f[i*4+2] = f[i*4+0] = i * kR_dX;
             f[i*4+1] = 0.0;
+            #ifdef DEBUG_VELOCITY
+            f[i*4+3] = p -> pVel[i];
+            #else
             f[i*4+3] = p -> pR_S[i];
+            #endif
           }
           glBufferData ( GL_ARRAY_BUFFER, (kN_GridX*4) * sizeof(GLfloat), f, GL_DYNAMIC_DRAW );
           glDrawArrays ( GL_TRIANGLE_STRIP, 0, kN_GridX*2 );

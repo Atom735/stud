@@ -14,6 +14,8 @@ CPPFLAGS :=\
 	-DUNICODE\
 	-DNDEBUG\
 
+# 	-DDEBUG_VELOCITY\
+
 CFLAGS :=\
 	-Wall\
 	$(MFLAGS)\
