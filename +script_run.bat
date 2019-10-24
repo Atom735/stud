@@ -27,19 +27,20 @@ rem start main -noGUI -N 512 -dT "0.001" -F 2000 -S_t "1.0" -S_x "0.0" -a "3.0" 
 
 
 
-start main -G -new ^
+start main ^
+     -G ^
     -N 1000 -dT "0.001" ^
-    -S_t "1.0" -S_x "0.0" -a "3.0" -Err "1e-5" -Km "1e-1" -txt ^
+    -S_t "1.0" -S_x "0.0" -a "3.0" -Err "1e-5" -Km "0.5" -txt ^
     "data/_original.txt" "data/_original.bin" ^
-     -G -new ^
+     -G ^
     -N 1000 -dT "0.001" ^
-    -S_t "1.0" -S_x "0.2" -a "3.0" -Err "1e-5" -Km "1e-1" -txt ^
+    -S_t "1.0" -S_x "0.2" -a "3.0" -Err "1e-5" -Km "0.5" -txt ^
     "data/_firstrules.txt" "data/_firstrules.bin" ^
-     -G -new ^
+     -G ^
     -N 1000 -dT "0.001" ^
-    -S_t "0.8" -S_x "0.0" -a "3.0" -Err "1e-5" -Km "1e-1" -txt ^
+    -S_t "0.8" -S_x "0.0" -a "3.0" -Err "1e-5" -Km "0.5" -txt ^
     "data/_leftrules.txt" "data/_leftrules.bin" ^
-     -G -new ^
+     -G ^
     -N 1000 -dT "0.001" ^
-    -S_t "0.8" -S_x "0.2" -a "3.0" -Err "1e-5" -Km "1e-1" -txt ^
+    -S_t "0.8" -S_x "0.2" -a "3.0" -Err "1e-5" -Km "0.5" -txt ^
     "data/_combo.txt" "data/_combo.bin" ^
